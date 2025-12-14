@@ -2,10 +2,8 @@ services:
   hotel_db:
     image: postgres:alpine
     restart: always
-    environment:
-      POSTGRES_USER: hotel
-      POSTGRES_PASSWORD: hotel_password
-      POSTGRES_DB: hotels
+    env_file:
+      - ${PWD}/config/db/hotel_db.env
     volumes:
       - hotel_data:/var/lib/postgresql/data
     ports:
@@ -16,10 +14,8 @@ services:
   booking_db:
     image: postgres:alpine
     restart: always
-    environment:
-      POSTGRES_USER: booking
-      POSTGRES_PASSWORD: booking_password
-      POSTGRES_DB: booking
+    env_file:
+      - ${PWD}/config/db/hotel_db.env
     volumes:
       - booking_data:/var/lib/postgresql/data
     ports:
@@ -55,7 +51,6 @@ services:
     environment:
       - TEMPLATE_DIR=/app/templates
     depends_on:
-      - redis
     networks:
       - services_network
 
@@ -73,7 +68,6 @@ services:
     env_file:
       - ${PWD}/config/services/.booking.env
     depends_on:
-      - booking_db
     networks:
       - services_network
       - kafka_network
