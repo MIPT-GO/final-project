@@ -8,4 +8,5 @@ type HotelHandler interface {
 	GetOneHotel(w http.ResponseWriter, r *http.Request)
 	UpdateRoom(w http.ResponseWriter, r *http.Request)
 	GetAllRooms(w http.ResponseWriter, r *http.Request)
+	GetRoom(w http.ResponseWriter, r *http.Request)
 }

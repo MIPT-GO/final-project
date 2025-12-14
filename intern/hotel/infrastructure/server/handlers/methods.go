@@ -8,6 +8,7 @@ import (
 	"final-project/pkg/logs"
 	"log/slog"
 	"net/http"
+	"strconv"
 )
 
 // GET /v1/hotel/all/
@@ -86,7 +87,7 @@ func (h *HotelHandlerImpl) GetAllRooms(w http.ResponseWriter, r *http.Request) {
 	RespondJSON(w, http.StatusOK, response)
 }
 
-// PUT /v1/hotel/{hotel: str}/room/
+// PUT /v1/hotel/{hotel: str}/rooms/
 func (h *HotelHandlerImpl) UpdateRoom(w http.ResponseWriter, r *http.Request) {
 	hotelName := getPathParam(r, "hotel")
 
@@ -117,4 +118,46 @@ func (h *HotelHandlerImpl) UpdateRoom(w http.ResponseWriter, r *http.Request) {
 	}
 
 	RespondJSON(w, http.StatusOK, nil)
+}
+
+// GET /v1/hotel/{hotel}/rooms/{number}
+func (h *HotelHandlerImpl) GetRoom(w http.ResponseWriter, r *http.Request) {
+	hotelName := getPathParam(r, "hotel")
+	roomStr := getPathParam(r, "number")
+
+	roomNumber, err := strconv.Atoi(roomStr)
+	if err != nil {
+		h.Log.Warn("Invalid room number", logs.KeyError, err)
+		http.Error(w, "Invalid room number", http.StatusBadRequest)
+		return
+	}
+
+	cost, err := h.RoomService.GetCost(hotelName, roomNumber)
+
+	if errors.Is(err, custom_errors.ErrEntityNotFound) {
+		h.Log.Warn(
+			logs.MsgEntityNotFound,
+			logs.KeyHotelName, hotelName,
+			slog.Int(logs.KeyRoomNumber, roomNumber),
+		)
+		http.Error(w, "Room not found", http.StatusNotFound)
+		return
+	}
+
+	if errors.Is(err, custom_errors.ErrDatabaseFailure) {
+		h.Log.Error(
+			logs.MsgDatabaseQueryFailed,
+			logs.KeyHotelName, hotelName,
+			slog.Int(logs.KeyRoomNumber, roomNumber),
+			logs.KeyError, err,
+		)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	response := dto.GetRoomResponse{
+		Cost: cost,
+	}
+
+	RespondJSON(w, http.StatusOK, response)
 }

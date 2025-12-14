@@ -21,7 +21,7 @@ type HotelServer struct {
 	DB         *sql.DB
 }
 
-func NewServer(log *slog.Logger, db *sql.DB, addr string) *HotelServer {
+func NewServer(log *slog.Logger, db *sql.DB, addr string, readTimeout, writeTimeout, idleTimeout time.Duration) *HotelServer {
 	hRepo := repository.NewHotelRepository(db, log)
 	rRepo := repository.NewRoomRepository(db, log)
 
@@ -35,9 +35,9 @@ func NewServer(log *slog.Logger, db *sql.DB, addr string) *HotelServer {
 	httpServer := &http.Server{
 		Addr:         addr,
 		Handler:      router,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		IdleTimeout:  15 * time.Second,
+		ReadTimeout:  readTimeout,
+		WriteTimeout: writeTimeout,
+		IdleTimeout:  idleTimeout,
 	}
 
 	return &HotelServer{
@@ -74,11 +74,8 @@ func setupRoutes(h interfaces.HotelHandler, log *slog.Logger) *http.ServeMux {
 	mux.HandleFunc("PUT /v1/hotel/{hotel}/room/", h.UpdateRoom)
 	logRoute("PUT", "/v1/hotel/{hotel}/room/")
 
-	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Hotel Service is UP"))
-	})
-	logRoute("GET", "/health")
+	mux.HandleFunc("GET /v1/hotel/{hotel}/room/{number}", h.GetRoom)
+	logRoute("GET", "/v1/hotel/{hotel}/rooms/{number}")
 
 	log.Info(logs.MsgOperationSuccess, logs.KeyEvent, logs.EventRouterSetup)
 	return mux
