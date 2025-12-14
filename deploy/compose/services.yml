@@ -1,0 +1,88 @@
+services:
+  hotel_db:
+    image: postgres:alpine
+    restart: always
+    environment:
+      POSTGRES_USER: hotel
+      POSTGRES_PASSWORD: hotel_password
+      POSTGRES_DB: hotels
+    volumes:
+      - hotel_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - services_network
+
+  booking_db:
+    image: postgres:alpine
+    restart: always
+    environment:
+      POSTGRES_USER: booking
+      POSTGRES_PASSWORD: booking_password
+      POSTGRES_DB: booking
+    volumes:
+      - booking_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - services_network
+
+  redis:
+    image: redis:alpine
+    restart: always
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - services_network
+
+  payment_system:
+    image: "payment_system:dev"
+    build:
+      target: runtime
+      context: ${PWD}
+      dockerfile: ${PWD}/deploy/Dockerfile
+      args:
+        APP: payment-system
+      cache_from:
+        - "payment_system:dev"
+        - "payment_system:latest"
+    volumes:
+      - ${PWD}/intern/payment-system/infrastructure/templates:/app/templates
+    env_file:
+      - ${PWD}/config/services/.payment-system.env
+    environment:
+      - TEMPLATE_DIR=/app/templates
+    depends_on:
+      - redis
+    networks:
+      - services_network
+
+  booking:
+    image: "booking:dev"
+    build:
+      target: runtime
+      context: ${PWD}
+      dockerfile: ${PWD}/deploy/Dockerfile
+      args:
+        APP: booking
+      cache_from:
+        - "booking:dev"
+        - "booking:latest"
+    env_file:
+      - ${PWD}/config/services/.booking.env
+    depends_on:
+      - booking_db
+    networks:
+      - services_network
+      - kafka_network
+
+volumes:
+  hotel_data:
+  booking_data:
+  redis_data:
+
+networks:
+  services_network:
+    driver: bridge

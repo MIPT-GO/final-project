@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM golang:1.23-alpine AS builder
+FROM golang:1.25-alpine AS builder
 
 LABEL maintainer="Zherdev Egor"
 LABEL vendor="Go final project team"
@@ -31,27 +31,22 @@ FROM alpine:3.21 AS runtime
 ARG UID=1000
 ARG GID=1000
 
-WORKDIR /app
-
-SHELL ["/bin/bash", "-eo", "pipefail", "-c"]
-
 RUN apk update && apk add --no-cache \
     ca-certificates \
     tzdata \
     curl
 
-RUN addgroup -g "${GID}" -S gohper && \
-    adduser -d '/app' -S gopher -u "${UID}" -G gopher && \
-    chown gopher:gopher -R /app
+WORKDIR /app
+
+RUN addgroup -g "${GID}" -S gopher && \
+    adduser -S gopher -u "${UID}" -G gopher && \
+    mkdir -p /app && \
+    chown -R gopher:gopher /app
 
 COPY --from=builder --chown=gopher:gopher /src/bin/app .
 
-USER gopher
-
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
+USER gopher:gopher
 
 EXPOSE 8080
 
 ENTRYPOINT ["./app"]
-CMD ["serve"]
