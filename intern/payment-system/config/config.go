@@ -57,6 +57,6 @@ func (config *Config) LoadFromEnv() {
 	config.PaymentTimeout = LoadInt("PAYMENT_TIMEOUT", 10)
 	config.StorageTimeout = LoadInt("STORAGE_TIMEOUT", 100)
 	config.LinkPrefix = LoadString("LINK_PREFIX", "")
-	config.RouterPrefix = LoadString("ROUTER_PREFIX", "")
-	config.TemplateDir = LoadString("TEMPLATE_DIR", "templates")
+	config.RouterPrefix = LoadString("ROUTER_PREFIX", "/v1/payment")
+	config.TemplateDir = LoadString("TEMPLATE_DIR", "intern/payment-system/infrastructure/templates")
 }
