@@ -17,7 +17,6 @@
 
 - `SERVER_HOST` — Public host for this service (must include scheme, e.g. `http://localhost`)
 - `SERVER_PORT` — Port passed to `http.Server` (format `:8080`)
-- `LOG_LEVEL` — `debug|info|warn|error`
 
 Example dev file: `env/booking.dev.env`
 
@@ -33,5 +32,5 @@ Example dev file: `env/booking.dev.env`
 
 Using `go run`:
 ```bash
-go run ./cmd/booking -env
+go run ./cmd/booking -loglevel `debug|info|warn|error` -env 
 ```
