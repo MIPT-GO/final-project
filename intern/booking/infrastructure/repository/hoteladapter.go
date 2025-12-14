@@ -73,25 +73,17 @@ func (h *HotelAdapter) GetAllRoomsInHotel(hotel string) ([]uint64, error) {
 		return nil, fmt.Errorf(constants.MsgHotelServiceStatusFmt, resp.StatusCode)
 	}
 	//узнать формат комнат и нормально дешифровать
-	type room struct {
-		Number uint64 `json:"number"`
-		Cost   uint64 `json:"cost"`
-	}
-	var rooms []room
+	var rooms []uint64
 	if err := json.NewDecoder(resp.Body).Decode(&rooms); err != nil {
 		if h.Logger != nil {
 			h.Logger.Error(constants.EventHotelResponse, err, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventHotelResponse)
 		}
 		return nil, err
 	}
-	roomNumbers := make([]uint64, 0, len(rooms))
-	for _, r := range rooms {
-		roomNumbers = append(roomNumbers, r.Number)
-	}
 	if h.Logger != nil {
 		h.Logger.Info(constants.EventHotelResponse, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventHotelResponse, constants.KeyHotelName, hotel, constants.KeyCount, len(rooms))
 	}
-	return roomNumbers, nil
+	return rooms, nil
 }
 
 func (h *HotelAdapter) GetRoomPrice(hotel string, roomNumber uint64) (string, error) {

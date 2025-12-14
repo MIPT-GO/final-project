@@ -63,7 +63,7 @@ func parseEnvFile(path string) (map[string]string, error) {
 }
 
 func lookup(env map[string]string, key, def string) string {
-	if env != nil {
+	if len(env) > 0 {
 		if v, ok := env[key]; ok && v != "" {
 			return v
 		}
@@ -74,7 +74,7 @@ func lookup(env map[string]string, key, def string) string {
 	return def
 }
 
-func NewConfigFromFile(path string) (*Config, error) {
+func NewConfig(path string) (*Config, error) {
 	envMap := make(map[string]string)
 	if path != "" {
 		m, err := parseEnvFile(path)

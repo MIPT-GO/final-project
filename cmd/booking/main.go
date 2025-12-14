@@ -31,15 +31,21 @@ func parseLogLevel(lvl string) slog.Level {
 }
 
 func main() {
-	envPath := flag.String("env", "env/booking.dev.env", "path to env file")
+	envFile := flag.String("env", "env/booking.dev.env", "path to env file if path=\"\" will use system env variables")
+	logLevelFlag := flag.String("log-level", "info", "logging level (debug|info|warn|error)")
 	flag.Parse()
 
-	cfg, err := env.NewConfigFromFile(*envPath)
+	var cfg *env.Config
+	var err error
+
+	cfg, err = env.NewConfig(*envFile)
+
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
 	}
 
-	lvl := parseLogLevel(cfg.LogLevel)
+	lvl := parseLogLevel(*logLevelFlag)
+	cfg.LogLevel = *logLevelFlag
 	lg := logger.New(lvl)
 	db, err := sql.Open("postgres", cfg.DB.DSN)
 	if err != nil {
