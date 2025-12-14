@@ -24,6 +24,7 @@ const (
 const (
 	EnvServerPort     = "SERVER_PORT"
 	DefaultServerPort = ":8080"
+	EnvServerHost     = "SERVER_HOST"
 )
 
 // Logging

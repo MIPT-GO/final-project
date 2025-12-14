@@ -55,10 +55,7 @@ func main() {
 	cr := repository.NewComplexRepo(pg, ht, pay, lg)
 	var repo interfaces.Repository = cr
 
-	// payment adapter
-
-	// build webhook URL (where payment service will send status) — default to localhost if not externally configured
-	webhookURL := "http://localhost" + cfg.Server.Port + "/webhook/payment"
+	webhookURL := cfg.Server.Host + cfg.Server.Port + "/webhook/payment"
 
 	lg.Info(constants.EventServerStarted, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventServerStarted, constants.KeyAddr, cfg.Server.Port)
 	server.StartServer(cfg.Server.Port, repo, lg, webhookURL)

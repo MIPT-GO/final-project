@@ -26,6 +26,7 @@ type PaymentConfig struct {
 
 type ServerConfig struct {
 	Port string
+	Host string
 }
 
 type Config struct {
@@ -102,6 +103,7 @@ func NewConfigFromFile(path string) (*Config, error) {
 	paymentBaseURL := strings.TrimRight(paymentHost, "/") + ":" + paymentPort
 
 	srvPort := lookup(envMap, constants.EnvServerPort, constants.DefaultServerPort)
+	srvHost := lookup(envMap, constants.EnvServerHost, "http://localhost")
 
 	logLevel := lookup(envMap, constants.EnvLogLevel, "info")
 
@@ -119,6 +121,7 @@ func NewConfigFromFile(path string) (*Config, error) {
 		},
 		Server: ServerConfig{
 			Port: srvPort,
+			Host: strings.TrimRight(srvHost, "/"),
 		},
 		LogLevel: logLevel,
 	}
