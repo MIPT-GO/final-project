@@ -41,7 +41,6 @@ func main() {
 
 	lvl := parseLogLevel(cfg.LogLevel)
 	lg := logger.New(lvl)
-
 	db, err := sql.Open("postgres", cfg.DB.DSN)
 	if err != nil {
 		lg.Error(constants.MsgFailedOpenDB, err, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventDBPing, constants.KeyError, err)
@@ -49,13 +48,18 @@ func main() {
 	}
 
 	client := &http.Client{Timeout: cfg.Hotel.Timeout}
-
+	payClient := &http.Client{Timeout: cfg.Payment.Timeout}
 	pg := repository.NewPostgresAdapter(db, lg)
 	ht := repository.NewHotelAdapter(cfg.Hotel.BaseURL, client, lg)
-
-	cr := repository.NewComplexRepo(pg, ht, lg)
+	pay := repository.NewPaymentAdapter(cfg.Payment.BaseURL, payClient, lg)
+	cr := repository.NewComplexRepo(pg, ht, pay, lg)
 	var repo interfaces.Repository = cr
 
+	// payment adapter
+
+	// build webhook URL (where payment service will send status) — default to localhost if not externally configured
+	webhookURL := "http://localhost" + cfg.Server.Port + "/webhook/payment"
+
 	lg.Info(constants.EventServerStarted, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventServerStarted, constants.KeyAddr, cfg.Server.Port)
-	server.StartServer(cfg.Server.Port, repo, lg)
+	server.StartServer(cfg.Server.Port, repo, lg, webhookURL)
 }

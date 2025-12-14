@@ -85,3 +85,42 @@ func (h *HotelAdapter) GetAllRoomsInHotel(hotel string) ([]uint64, error) {
 	}
 	return rooms, nil
 }
+
+func (h *HotelAdapter) GetRoomPrice(hotel string, roomNumber uint64) (string, error) {
+	url := fmt.Sprintf(h.BaseURL+constants.HotelRoomPriceEndpoint, hotel, roomNumber)
+	req, _ := http.NewRequest(http.MethodGet, url, nil)
+	if h.Logger != nil {
+		h.Logger.Debug(constants.EventHotelRequest, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventHotelRequest, constants.KeyURL, url, constants.KeyHotelName, hotel, constants.KeyRoomNumber, roomNumber)
+	}
+	resp, err := h.Client.Do(req)
+	if err != nil {
+		if h.Logger != nil {
+			h.Logger.Error(constants.EventHotelRequest, err, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventHotelRequest, constants.KeyURL, url)
+		}
+		return "", err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusNotFound {
+		return "", constants.ErrHotelNotFound
+	}
+	if resp.StatusCode >= 400 {
+		if h.Logger != nil {
+			h.Logger.Error(constants.EventHotelResponse, fmt.Errorf(constants.MsgHotelServiceStatusFmt, resp.StatusCode), constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventHotelResponse, constants.KeyStatusCode, resp.StatusCode)
+		}
+		return "", fmt.Errorf(constants.MsgHotelServiceStatusFmt, resp.StatusCode)
+	}
+	// узнать формат цены и нормально дешифровать
+	var pr struct {
+		Price string `json:"price"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&pr); err != nil {
+		if h.Logger != nil {
+			h.Logger.Error(constants.EventHotelResponse, err, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventHotelResponse)
+		}
+		return "", err
+	}
+	if h.Logger != nil {
+		h.Logger.Info(constants.EventHotelResponse, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventHotelResponse, constants.KeyHotelName, hotel)
+	}
+	return pr.Price, nil
+}

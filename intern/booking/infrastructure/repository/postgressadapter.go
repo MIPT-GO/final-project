@@ -93,3 +93,14 @@ func (p *PostgresAdapter) HasOverlap(reserv reservation.Reserve) (bool, error) {
 	}
 	return count > 0, nil
 }
+
+func (p *PostgresAdapter) DeleteReservation(reserv reservation.Reserve) error {
+	if p.Logger != nil {
+		p.Logger.Info(constants.EventDBQuery, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventDBQuery, constants.KeyHotelName, reserv.Hotel, constants.KeyRoomNumber, reserv.Number, constants.KeyUserEmail, reserv.Email)
+	}
+	_, err := p.DB.Exec(constants.QueryDeleteReservation, reserv.Email, reserv.Hotel, reserv.Number, reserv.Start, reserv.End)
+	if err != nil && p.Logger != nil {
+		p.Logger.Error(constants.EventDBQuery, err, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventDBQuery, constants.KeyQuery, constants.QueryDeleteReservation)
+	}
+	return err
+}

@@ -19,6 +19,11 @@ type HotelConfig struct {
 	Timeout time.Duration
 }
 
+type PaymentConfig struct {
+	BaseURL string
+	Timeout time.Duration
+}
+
 type ServerConfig struct {
 	Port string
 }
@@ -26,6 +31,7 @@ type ServerConfig struct {
 type Config struct {
 	DB       DBConfig
 	Hotel    HotelConfig
+	Payment  PaymentConfig
 	Server   ServerConfig
 	LogLevel string
 }
@@ -89,6 +95,12 @@ func NewConfigFromFile(path string) (*Config, error) {
 	hotelTimeout, _ := time.ParseDuration(hotelTimeoutStr)
 	hotelBaseURL := strings.TrimRight(hotelHost, "/") + ":" + hotelPort
 
+	paymentHost := lookup(envMap, constants.EnvPaymentServiceHost, "http://localhost")
+	paymentPort := lookup(envMap, constants.EnvPaymentServicePort, constants.DefaultPaymentServicePort)
+	paymentTimeoutStr := lookup(envMap, constants.EnvPaymentServiceTimeout, "5s")
+	paymentTimeout, _ := time.ParseDuration(paymentTimeoutStr)
+	paymentBaseURL := strings.TrimRight(paymentHost, "/") + ":" + paymentPort
+
 	srvPort := lookup(envMap, constants.EnvServerPort, constants.DefaultServerPort)
 
 	logLevel := lookup(envMap, constants.EnvLogLevel, "info")
@@ -100,6 +112,10 @@ func NewConfigFromFile(path string) (*Config, error) {
 		Hotel: HotelConfig{
 			BaseURL: hotelBaseURL,
 			Timeout: hotelTimeout,
+		},
+		Payment: PaymentConfig{
+			BaseURL: paymentBaseURL,
+			Timeout: paymentTimeout,
 		},
 		Server: ServerConfig{
 			Port: srvPort,

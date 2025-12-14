@@ -10,16 +10,18 @@ import (
 type ComplexRepo struct {
 	postgres PostgresPort
 	hotel    HotelPort
+	payment  PaymentPort
 	logger   interfaces.Logger
 }
 
-func NewComplexRepo(pg PostgresPort, ht HotelPort, logger interfaces.Logger) *ComplexRepo {
+func NewComplexRepo(pg PostgresPort, ht HotelPort, pay PaymentPort, logger interfaces.Logger) *ComplexRepo {
 	if logger != nil {
 		logger.Info(constants.EventRepoInit, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventRepoInit)
 	}
 	return &ComplexRepo{
 		postgres: pg,
 		hotel:    ht,
+		payment:  pay,
 		logger:   logger,
 	}
 }
@@ -38,11 +40,32 @@ func (cr *ComplexRepo) FindByHotel(hotel string) ([]reservation.Reserve, error) 
 	return cr.postgres.FindByHotel(hotel)
 }
 
+func (cr *ComplexRepo) DeleteReservation(reserv reservation.Reserve) error {
+	if cr.logger != nil {
+		cr.logger.Info(constants.EventDBDelete, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventDBDelete, constants.KeyHotelName, reserv.Hotel, constants.KeyRoomNumber, reserv.Number)
+	}
+	return cr.postgres.DeleteReservation(reserv)
+}
+
 func (cr *ComplexRepo) AddNewReservation(reserv reservation.Reserve) error {
 	if cr.logger != nil {
 		cr.logger.Info(constants.EventDBInsert, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventDBInsert, constants.KeyHotelName, reserv.Hotel, constants.KeyRoomNumber, reserv.Number)
 	}
 	return cr.postgres.AddNewReservation(reserv)
+}
+
+func (cr *ComplexRepo) InitiatePayment(amount string, webhook string, message string, extra map[string]string) (string, error) {
+	if cr.logger != nil {
+		cr.logger.Info(constants.EventPaymentInitiated, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventPaymentInitiated, constants.KeyAmount, amount)
+	}
+	return cr.payment.InitiatePayment(amount, webhook, message, extra)
+}
+
+func (cr *ComplexRepo) GetRoomPrice(hotel string, roomNumber uint64) (string, error) {
+	if cr.logger != nil {
+		cr.logger.Debug(constants.EventHotelRequest, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventHotelRequest, constants.KeyHotelName, hotel, constants.KeyRoomNumber, roomNumber)
+	}
+	return cr.hotel.GetRoomPrice(hotel, roomNumber)
 }
 
 func (cr *ComplexRepo) CheckAccuracy(reserv reservation.Reserve) error {

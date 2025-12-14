@@ -3,11 +3,12 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"net/http"
+	"time"
+
 	"final-project/intern/booking/domain/models/reservation"
 	"final-project/intern/booking/infrastructure/server/dto"
 	"final-project/pkg/booking/constants"
-	"net/http"
-	"time"
 )
 
 func (handl *handler) BookRoomInHotel(w http.ResponseWriter, r *http.Request) {
@@ -57,16 +58,20 @@ func (handl *handler) BookRoomInHotel(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, constants.MsgInternalServerError, http.StatusInternalServerError)
 		return
 	}
-	//логика взаимодействия с сервисом оплаты
 
-	err = handl.service.BookRoomInHotel(reservation)
+	logger.Info(constants.EventBookRoomInHotel, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventBookRoomInHotel, constants.KeyHandler, "BookRoomInHotel", constants.KeyHotelName, reservation.Hotel, constants.KeyRoomNumber, reservation.Number, constants.KeyUserEmail, reservation.Email)
+	paymentLink, err := handl.service.BookRoomInHotel(reservation)
 	if err != nil {
 		logger.Error(constants.EventBookRoomInHotel, err, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventBookRoomInHotel, constants.KeyHandler, "BookRoomInHotel")
 		http.Error(w, constants.MsgInternalServerError, http.StatusInternalServerError)
 		return
 	}
-	logger.Info(constants.EventBookRoomInHotel, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventBookRoomInHotel, constants.KeyHotelName, reservation.Hotel, constants.KeyRoomNumber, reservation.Number)
+
+	resp := map[string]string{"payment_link": paymentLink}
+	logger.Info(constants.MsgPaymentLinkCreated, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventPaymentInitiated, constants.KeyPaymentLink, paymentLink)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	//проброс ссылки
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		logger.Error(constants.EventFailedToEncode, err, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventFailedToEncode)
+	}
 }

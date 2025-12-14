@@ -7,4 +7,5 @@ type PostgresPort interface {
 	FindByHotel(hotel string) ([]reservation.Reserve, error)
 	AddNewReservation(reserv reservation.Reserve) error
 	HasOverlap(reserv reservation.Reserve) (bool, error)
+	DeleteReservation(reserv reservation.Reserve) error
 }
