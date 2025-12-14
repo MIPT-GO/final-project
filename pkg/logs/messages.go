@@ -9,4 +9,8 @@ const (
 	MsgUpdateFailure       = "Update operation failed"
 	MsgStartOperation      = "Starting operation"
 	MsgOperationSuccess    = "Operation successful"
+	MsgStartServer         = "Starting HTTP server"
+	MsgRouteRegistered     = "Registering route"
+	MsgUnexpectedFail      = "Server failed unexpectedly"
+	MsgServerStopped       = "HTTP Server stopped"
 )

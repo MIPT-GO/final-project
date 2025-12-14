@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"final-project/intern/hotel/domain/entity"
+	"final-project/intern/hotel/domain/interfaces"
 	"final-project/pkg/custom_errors"
 	"final-project/pkg/logs"
 	"log/slog"
@@ -14,6 +15,13 @@ import (
 type HotelRepositoryImpl struct {
 	DB  *sql.DB
 	Log *slog.Logger
+}
+
+func NewHotelRepository(db *sql.DB, log *slog.Logger) interfaces.HotelRepository {
+	return &HotelRepositoryImpl{
+		DB:  db,
+		Log: log,
+	}
 }
 
 func (r *HotelRepositoryImpl) GetAll() ([]entity.Hotel, error) {
