@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"syscall"
@@ -17,6 +18,10 @@ import (
 	"final-project/pkg/logs"
 
 	_ "github.com/lib/pq"
+
+	migrate "github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 func main() {
@@ -37,14 +42,19 @@ func main() {
 
 	db, err := setupDB(cfg, logger)
 	if err != nil {
-		logger.Error("Failed to connect to database", logs.KeyError, err)
+		logger.Error(logs.MsgDatabaseConnectFailed, logs.KeyError, err)
 		os.Exit(1)
 	}
 	defer func() {
 		if err := db.Close(); err != nil {
-			logger.Error("Failed to close DB connection", logs.KeyError, err)
+			logger.Error(logs.MsgDatabaseCloseFailed, logs.KeyError, err)
 		}
 	}()
+
+	if err := runMigrations(cfg, logger); err != nil {
+		logger.Error(logs.MsgDatabaseMigrationFailed, logs.KeyError, err)
+		os.Exit(1)
+	}
 
 	srv := server.NewServer(
 		logger,
@@ -55,6 +65,7 @@ func main() {
 		time.Duration(cfg.IdleTimeout)*time.Second,
 	)
 
+	logger.Info(logs.MsgStartServer, slog.String("addr", serverAddr))
 	go func() {
 		if err := srv.Run(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			logger.Error(logs.MsgUnexpectedFail, logs.KeyError, err)
@@ -63,20 +74,22 @@ func main() {
 	}()
 
 	<-ctx.Done()
+	logger.Info(logs.MsgShuttingDown, logs.KeyEvent, logs.EventServerShutdown)
 
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := srv.HTTPServer.Shutdown(shutdownCtx); err != nil {
-		logger.Error("Server forced to shutdown", logs.KeyError, err)
+		logger.Error(logs.MsgForcedShutdown, logs.KeyError, err)
 		os.Exit(1)
 	}
 
+	logger.Info(logs.MsgShutdownComplete, logs.KeyEvent, logs.EventServerShutdown)
 }
 
 func setupDB(cfg *config.Config, log *slog.Logger) (*sql.DB, error) {
 	connStr := cfg.GetDBConnectionString()
-	log.Info(logs.MsgStartOperation, logs.KeyEvent, logs.EventDBQuery, slog.String("db_name", cfg.DBName))
+	log.Info(logs.MsgStartOperation, logs.KeyEvent, logs.EventDBConnect, slog.String(logs.KeyDBName, cfg.DBName))
 
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
@@ -87,5 +100,38 @@ func setupDB(cfg *config.Config, log *slog.Logger) (*sql.DB, error) {
 		db.Close()
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
+
+	log.Info(logs.MsgOperationSuccess, logs.KeyEvent, logs.EventDBConnect)
 	return db, nil
+}
+
+func runMigrations(cfg *config.Config, log *slog.Logger) error {
+	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
+		cfg.DBUser,
+		url.QueryEscape(cfg.DBPassword),
+		cfg.DBHost,
+		cfg.DBPort,
+		cfg.DBName)
+
+	m, err := migrate.New(
+		"file://internal/db/migrations",
+		dbURL)
+
+	if err != nil {
+		return fmt.Errorf("could not create migrate instance: %w", err)
+	}
+
+	log.Info(logs.MsgStartOperation, logs.KeyEvent, logs.EventDBMigration, slog.String(logs.KeyDBName, cfg.DBName))
+
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		return fmt.Errorf("failed to apply migrations: %w", err)
+	}
+
+	if errors.Is(err, migrate.ErrNoChange) {
+		log.Info(logs.MsgDatabaseMigrationNoChange, logs.KeyEvent, logs.EventDBMigration)
+	} else {
+		log.Info(logs.MsgOperationSuccess, logs.KeyEvent, logs.EventDBMigration)
+	}
+
+	return nil
 }

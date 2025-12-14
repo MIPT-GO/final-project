@@ -16,3 +16,8 @@ const (
 const (
 	EventPermissionDenied = "auth_denied"
 ) //for service
+
+const (
+	EventDBConnect   = "db-connect"
+	EventDBMigration = "db-migration"
+) //for connection

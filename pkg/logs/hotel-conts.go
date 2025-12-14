@@ -1,6 +1,7 @@
 package logs
 
 const (
+	KeyDBName     = "Hotel"
 	KeyHotelEmail = "hotel_email"
 	KeyHotelName  = "hotel_name"
 	KeyRoomNumber = "number"
