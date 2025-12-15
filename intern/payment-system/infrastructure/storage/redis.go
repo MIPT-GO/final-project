@@ -60,3 +60,7 @@ func (storage *RedisStorage) GetRecord(ctx context.Context, key string) (domain.
 
 	return info, nil
 }
+
+func (storage *RedisStorage) DeleteRecord(ctx context.Context, key string) error {
+	return storage.client.Del(ctx, key).Err()
+}

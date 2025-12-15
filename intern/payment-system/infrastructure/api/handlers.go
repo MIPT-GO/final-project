@@ -19,7 +19,7 @@ func (manager *HandlersManager) PaymentRequestHandler(writer http.ResponseWriter
 	defer request.Body.Close()
 
 	if err != nil {
-		writer.WriteHeader(422)
+		writer.WriteHeader(http.StatusUnprocessableEntity)
 		return
 	}
 
@@ -34,7 +34,7 @@ func (manager *HandlersManager) PaymentRequestHandler(writer http.ResponseWriter
 	url, err := manager.UseCase.CreatePaymentLink(ctx, requestParams.Amount, requestParams.WebHook, requestParams.Message)
 	if err != nil {
 		slog.Error("Error during create payment link", "error", err.Error())
-		writer.WriteHeader(500)
+		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -45,7 +45,7 @@ func (manager *HandlersManager) PaymentRequestHandler(writer http.ResponseWriter
 	)
 	if err != nil {
 		slog.Error("Error during creating response", "error", err.Error())
-		writer.WriteHeader(500)
+		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }
@@ -54,7 +54,7 @@ func (manager *HandlersManager) RenderPaymentPageHandler(writer http.ResponseWri
 	key := mux.Vars(request)["key"]
 
 	if key == "" {
-		writer.WriteHeader(422)
+		writer.WriteHeader(http.StatusUnprocessableEntity)
 		return
 	}
 
@@ -66,7 +66,7 @@ func (manager *HandlersManager) RenderPaymentPageHandler(writer http.ResponseWri
 
 	if err != nil {
 		slog.Error("Error during render payment page", "error", err.Error(), "key", key)
-		writer.WriteHeader(400)
+		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
 }
@@ -75,7 +75,7 @@ func (manager *HandlersManager) ConfirmPaymentHandler(writer http.ResponseWriter
 	key := mux.Vars(request)["key"]
 
 	if key == "" {
-		writer.WriteHeader(422)
+		writer.WriteHeader(http.StatusUnprocessableEntity)
 		return
 	}
 
@@ -87,7 +87,7 @@ func (manager *HandlersManager) ConfirmPaymentHandler(writer http.ResponseWriter
 
 	if err != nil {
 		slog.Error("Error during confirm payment", "error", err.Error(), "key", key)
-		writer.WriteHeader(400)
+		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
 }

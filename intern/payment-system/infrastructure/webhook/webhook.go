@@ -12,7 +12,9 @@ type WebHookMessage struct {
 	Status string `json:"status"`
 }
 
-type NetWebHookSender struct{}
+type NetWebHookSender struct {
+	Client *http.Client
+}
 
 func (sender *NetWebHookSender) Send(webhook string, status domain.PaymentStatus) error {
 	message := WebHookMessage{
@@ -25,7 +27,7 @@ func (sender *NetWebHookSender) Send(webhook string, status domain.PaymentStatus
 		return err
 	}
 
-	resp, err := http.Post(webhook, "application/json", bytes.NewBuffer(data))
+	resp, err := sender.Client.Post(webhook, "application/json", bytes.NewBuffer(data))
 
 	if err != nil {
 		return err

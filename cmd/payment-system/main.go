@@ -10,6 +10,7 @@ import (
 	"final-project/intern/payment-system/infrastructure/webhook"
 	"flag"
 	"log/slog"
+	"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -63,7 +64,9 @@ func main() {
 	render := render.HTMLRender{}
 	render.New(&config)
 
-	sender := webhook.NetWebHookSender{}
+	sender := webhook.NetWebHookSender{
+		Client: &http.Client{},
+	}
 
 	usecase := application.PaymentsUseCase{
 		Repository: &redis,
