@@ -16,6 +16,10 @@ type ReservationService struct {
 	Producer interfaces.Producer
 }
 
+func (s *ReservationService) Repo() interfaces.Repository {
+	return s.repo
+}
+
 func NewReservationService(repo interfaces.Repository, webhook string, logger interfaces.Logger, producer interfaces.Producer) ReservationService {
 	return ReservationService{repo: repo, webhook: webhook, Logger: logger, Producer: producer}
 }

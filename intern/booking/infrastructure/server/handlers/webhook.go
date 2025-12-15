@@ -54,7 +54,7 @@ func (h *handler) PaymentWebhook(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if h.service.Producer != nil {
-		ownerEmail, _ := h.service.repo.GetHotelOwnerEmail(reserv.Hotel)
+		ownerEmail, _ := h.service.Repo().GetHotelOwnerEmail(reserv.Hotel)
 		e := map[string]any{
 			"event":       "booking_created",
 			"email":       reserv.Email,
