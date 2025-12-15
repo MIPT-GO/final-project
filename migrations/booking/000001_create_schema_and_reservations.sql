@@ -5,8 +5,8 @@ CREATE SCHEMA IF NOT EXISTS booking;
 CREATE TABLE IF NOT EXISTS booking.reservations (
     id BIGSERIAL PRIMARY KEY,
     email TEXT NOT NULL,
-    start_at TIMESTAMPTZ NOT NULL,
-    end_at TIMESTAMPTZ NOT NULL,
+    start TIMESTAMPTZ NOT NULL,
+    "end" TIMESTAMPTZ NOT NULL,
     hotel TEXT NOT NULL,
     number BIGINT,
     created_at TIMESTAMPTZ DEFAULT now()
