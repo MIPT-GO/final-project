@@ -31,16 +31,6 @@ func (m *HotelRepositoryMock) GetByName(name string) (entity.Hotel, error) {
 	return args.Get(0).(entity.Hotel), args.Error(1)
 }
 
-func (m *HotelRepositoryMock) GetByEmail(email string) (string, error) {
-	args := m.Called(email)
-
-	if args.Get(0) == nil {
-		return "", args.Error(1)
-	}
-
-	return args.String(0), args.Error(1)
-}
-
 func (m *HotelRepositoryMock) AddNewHotel(hotel entity.Hotel) error {
 	args := m.Called(hotel)
 	return args.Error(0)
