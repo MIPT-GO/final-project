@@ -5,7 +5,7 @@ import (
 	"final-project/intern/booking/domain/models/reservation"
 )
 
-func BookRoomInHotel(reserv reservation.Reserve, repo interfaces.Repository) error {
-	err := repo.AddNewReservation(reserv)
-	return err
+func BookRoomInHotel(reserv reservation.Reserve, repo interfaces.Repository) (uint64, error) {
+	id, err := repo.AddNewReservation(reserv)
+	return id, err
 }

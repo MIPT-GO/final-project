@@ -12,18 +12,18 @@ import (
 	"syscall"
 )
 
-func StartServer(port string, repo interfaces.Repository, logger interfaces.Logger, webhook string) {
+func StartServer(port string, repo interfaces.Repository, logger interfaces.Logger, webhook string, producer interfaces.Producer) {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	s := service.NewReservationService(repo, webhook, logger)
+	s := service.NewReservationService(repo, webhook, logger, producer)
 	h := handlers.NewHandler(s)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/v1/booking/available/{email}/", h.GetByEmail)
 	mux.HandleFunc("/v1/booking/hotel/{hotel}/", h.GetByHotel)
 	mux.HandleFunc("/v1/booking/", h.BookRoomInHotel)
 	mux.HandleFunc("/v1/available/{hotel}/", h.BookRoomInHotel)
-	mux.HandleFunc("/webhook/payment/{email}/{hotel}/{number}/{start}/{end}/", h.PaymentWebhook)
+	mux.HandleFunc("/webhook/payment/{id}", h.PaymentWebhook)
 	serv := &http.Server{
 		Addr:    port,
 		Handler: mux,

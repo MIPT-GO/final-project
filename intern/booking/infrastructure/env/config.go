@@ -29,11 +29,17 @@ type ServerConfig struct {
 	Host string
 }
 
+type KafkaConfig struct {
+	Host  string
+	Topic string
+}
+
 type Config struct {
 	DB       DBConfig
 	Hotel    HotelConfig
 	Payment  PaymentConfig
 	Server   ServerConfig
+	Kafka    KafkaConfig
 	LogLevel string
 }
 
@@ -102,6 +108,9 @@ func NewConfig(path string) (*Config, error) {
 	paymentTimeout, _ := time.ParseDuration(paymentTimeoutStr)
 	paymentBaseURL := strings.TrimRight(paymentHost, "/") + ":" + paymentPort
 
+	kafkaHost := lookup(envMap, constants.EnvKafkaHost, constants.DefaultKafkaHost)
+	kafkaTopic := lookup(envMap, constants.EnvKafkaTopic, constants.DefaultKafkaTopic)
+
 	srvPort := lookup(envMap, constants.EnvServerPort, constants.DefaultServerPort)
 	srvHost := lookup(envMap, constants.EnvServerHost, "http://localhost")
 
@@ -122,6 +131,10 @@ func NewConfig(path string) (*Config, error) {
 		Server: ServerConfig{
 			Port: srvPort,
 			Host: strings.TrimRight(srvHost, "/"),
+		},
+		Kafka: KafkaConfig{
+			Host:  kafkaHost,
+			Topic: kafkaTopic,
 		},
 		LogLevel: logLevel,
 	}

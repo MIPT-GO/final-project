@@ -65,15 +65,19 @@ func (p *PostgresAdapter) FindByHotel(hotel string) ([]reservation.Reserve, erro
 	return res, nil
 }
 
-func (p *PostgresAdapter) AddNewReservation(reserv reservation.Reserve) error {
+func (p *PostgresAdapter) AddNewReservation(reserv reservation.Reserve) (uint64, error) {
 	if p.Logger != nil {
 		p.Logger.Info(constants.EventDBInsert, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventDBInsert, constants.KeyHotelName, reserv.Hotel, constants.KeyRoomNumber, reserv.Number, constants.KeyUserEmail, reserv.Email)
 	}
-	_, err := p.DB.Exec(constants.QueryInsertReservation, reserv.Email, reserv.Start, reserv.End, reserv.Hotel, reserv.Number)
-	if err != nil && p.Logger != nil {
-		p.Logger.Error(constants.EventDBInsert, err, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventDBInsert, constants.KeyQuery, constants.QueryInsertReservation)
+	var id uint64
+	row := p.DB.QueryRow(constants.QueryInsertReservation, reserv.Email, reserv.Start, reserv.End, reserv.Hotel, reserv.Number)
+	if err := row.Scan(&id); err != nil {
+		if p.Logger != nil {
+			p.Logger.Error(constants.EventDBInsert, err, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventDBInsert, constants.KeyQuery, constants.QueryInsertReservation)
+		}
+		return 0, err
 	}
-	return err
+	return id, nil
 }
 
 func (p *PostgresAdapter) HasOverlap(reserv reservation.Reserve) (bool, error) {
@@ -92,6 +96,21 @@ func (p *PostgresAdapter) HasOverlap(reserv reservation.Reserve) (bool, error) {
 		p.Logger.Debug(constants.EventHasOverlap, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventHasOverlap, constants.KeyCount, count)
 	}
 	return count > 0, nil
+}
+
+func (p *PostgresAdapter) GetById(id uint64) (reservation.Reserve, error) {
+	if p.Logger != nil {
+		p.Logger.Debug(constants.EventDBQuery, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventDBQuery, constants.KeyQuery, constants.QueryFindById, constants.KeyUserID, id)
+	}
+	row := p.DB.QueryRow(constants.QueryFindById, id)
+	var r reservation.Reserve
+	if err := row.Scan(&r.Id, &r.Email, &r.Start, &r.End, &r.Hotel, &r.Number); err != nil {
+		if p.Logger != nil {
+			p.Logger.Error(constants.EventDBQuery, err, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventDBQuery, constants.KeyQuery, constants.QueryFindById)
+		}
+		return r, err
+	}
+	return r, nil
 }
 
 func (p *PostgresAdapter) DeleteReservation(reserv reservation.Reserve) error {

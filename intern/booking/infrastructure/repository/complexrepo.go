@@ -47,11 +47,18 @@ func (cr *ComplexRepo) DeleteReservation(reserv reservation.Reserve) error {
 	return cr.postgres.DeleteReservation(reserv)
 }
 
-func (cr *ComplexRepo) AddNewReservation(reserv reservation.Reserve) error {
+func (cr *ComplexRepo) AddNewReservation(reserv reservation.Reserve) (uint64, error) {
 	if cr.logger != nil {
 		cr.logger.Info(constants.EventDBInsert, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventDBInsert, constants.KeyHotelName, reserv.Hotel, constants.KeyRoomNumber, reserv.Number)
 	}
 	return cr.postgres.AddNewReservation(reserv)
+}
+
+func (cr *ComplexRepo) GetById(id uint64) (reservation.Reserve, error) {
+	if cr.logger != nil {
+		cr.logger.Debug(constants.EventDBQuery, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventDBQuery, constants.KeyQuery, constants.QueryFindById, constants.KeyUserID, id)
+	}
+	return cr.postgres.GetById(id)
 }
 
 func (cr *ComplexRepo) InitiatePayment(amount string, webhook string, message string, extra map[string]string) (string, error) {
@@ -66,6 +73,13 @@ func (cr *ComplexRepo) GetRoomPrice(hotel string, roomNumber uint64) (string, er
 		cr.logger.Debug(constants.EventHotelRequest, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventHotelRequest, constants.KeyHotelName, hotel, constants.KeyRoomNumber, roomNumber)
 	}
 	return cr.hotel.GetRoomPrice(hotel, roomNumber)
+}
+
+func (cr *ComplexRepo) GetHotelOwnerEmail(hotel string) (string, error) {
+	if cr.logger != nil {
+		cr.logger.Debug(constants.EventHotelRequest, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventHotelRequest, constants.KeyHotelName, hotel)
+	}
+	return cr.hotel.GetOwnerEmail(hotel)
 }
 
 func (cr *ComplexRepo) CheckAccuracy(reserv reservation.Reserve) error {

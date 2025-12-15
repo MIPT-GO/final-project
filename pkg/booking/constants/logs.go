@@ -74,5 +74,5 @@ const (
 // Service names
 const (
 	ServiceBooking = "booking_service"
-	ServiceVersion = "v1.0.0"
+	ServiceVersion = "v1.1.0"
 )

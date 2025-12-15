@@ -109,7 +109,6 @@ func (h *HotelAdapter) GetRoomPrice(hotel string, roomNumber uint64) (string, er
 		}
 		return "", fmt.Errorf(constants.MsgHotelServiceStatusFmt, resp.StatusCode)
 	}
-	// узнать формат цены и нормально дешифровать
 	var pr struct {
 		Price string `json:"cost"`
 	}
@@ -123,4 +122,43 @@ func (h *HotelAdapter) GetRoomPrice(hotel string, roomNumber uint64) (string, er
 		h.Logger.Info(constants.EventHotelResponse, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventHotelResponse, constants.KeyHotelName, hotel)
 	}
 	return pr.Price, nil
+}
+
+func (h *HotelAdapter) GetOwnerEmail(hotel string) (string, error) {
+	url := fmt.Sprintf(h.BaseURL+constants.HotelOwnerEmailEndpoint, hotel)
+	req, _ := http.NewRequest(http.MethodGet, url, nil)
+	if h.Logger != nil {
+		h.Logger.Debug(constants.EventHotelRequest, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventHotelRequest, constants.KeyURL, url, constants.KeyHotelName, hotel)
+	}
+	resp, err := h.Client.Do(req)
+	if err != nil {
+		if h.Logger != nil {
+			h.Logger.Error(constants.EventHotelRequest, err, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventHotelRequest, constants.KeyURL, url)
+		}
+		return "", err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusNotFound {
+		return "", constants.ErrHotelNotFound
+	}
+	if resp.StatusCode >= 400 {
+		if h.Logger != nil {
+			h.Logger.Error(constants.EventHotelResponse, fmt.Errorf(constants.MsgHotelServiceStatusFmt, resp.StatusCode), constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventHotelResponse, constants.KeyStatusCode, resp.StatusCode)
+		}
+		return "", fmt.Errorf(constants.MsgHotelServiceStatusFmt, resp.StatusCode)
+	}
+	var p struct {
+		Name  string `json:"name"`
+		Email string `json:"email"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&p); err != nil {
+		if h.Logger != nil {
+			h.Logger.Error(constants.EventHotelResponse, err, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventHotelResponse)
+		}
+		return "", err
+	}
+	if h.Logger != nil {
+		h.Logger.Info(constants.EventHotelResponse, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventHotelResponse, constants.KeyHotelName, hotel)
+	}
+	return p.Email, nil
 }

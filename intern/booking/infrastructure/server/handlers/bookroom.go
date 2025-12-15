@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -60,14 +61,14 @@ func (handl *handler) BookRoomInHotel(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logger.Info(constants.EventBookRoomInHotel, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventBookRoomInHotel, constants.KeyHandler, "BookRoomInHotel", constants.KeyHotelName, reservation.Hotel, constants.KeyRoomNumber, reservation.Number, constants.KeyUserEmail, reservation.Email)
-	paymentLink, err := handl.service.BookRoomInHotel(reservation)
+	id, paymentLink, err := handl.service.BookRoomInHotel(reservation)
 	if err != nil {
 		logger.Error(constants.EventBookRoomInHotel, err, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventBookRoomInHotel, constants.KeyHandler, "BookRoomInHotel")
 		http.Error(w, constants.MsgInternalServerError, http.StatusInternalServerError)
 		return
 	}
 
-	resp := map[string]string{"payment_link": paymentLink}
+	resp := map[string]string{"id": fmt.Sprintf("%d", id), "payment_link": paymentLink}
 	logger.Info(constants.MsgPaymentLinkCreated, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventPaymentInitiated, constants.KeyPaymentLink, paymentLink)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)

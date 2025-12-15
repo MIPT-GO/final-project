@@ -9,6 +9,7 @@ import (
 
 	"final-project/intern/booking/application/interfaces"
 	"final-project/intern/booking/infrastructure/env"
+	"final-project/intern/booking/infrastructure/kafka"
 	"final-project/intern/booking/infrastructure/logger"
 	"final-project/intern/booking/infrastructure/repository"
 	"final-project/intern/booking/infrastructure/server"
@@ -64,6 +65,9 @@ func main() {
 
 	webhookURL := cfg.Server.Host + cfg.Server.Port + "/webhook/payment"
 
+	// create async Kafka producer (fire-and-forget)
+	p := kafka.NewProducer(cfg.Kafka.Host, cfg.Kafka.Topic)
+
 	lg.Info(constants.EventServerStarted, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventServerStarted, constants.KeyAddr, cfg.Server.Port)
-	server.StartServer(cfg.Server.Port, repo, lg, webhookURL)
+	server.StartServer(cfg.Server.Port, repo, lg, webhookURL, p)
 }

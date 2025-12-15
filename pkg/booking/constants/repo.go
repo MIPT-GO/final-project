@@ -41,16 +41,18 @@ const (
 const (
 	QueryFindByEmail       = "SELECT id, email, start, \"end\", hotel, number FROM " + TableReservations + " WHERE email=$1"
 	QueryFindByHotel       = "SELECT id, email, start, \"end\", hotel, number FROM " + TableReservations + " WHERE hotel=$1"
-	QueryInsertReservation = "INSERT INTO " + TableReservations + " (email, start, \"end\", hotel, number) VALUES ($1, $2, $3, $4, $5)"
+	QueryInsertReservation = "INSERT INTO " + TableReservations + " (email, start, \"end\", hotel, number) VALUES ($1, $2, $3, $4, $5) RETURNING id"
+	QueryFindById          = "SELECT id, email, start, \"end\", hotel, number FROM " + TableReservations + " WHERE id=$1"
 	QueryCountOverlapping  = "SELECT COUNT(1) FROM " + TableReservations + " WHERE hotel=$1 AND number=$2 AND NOT ($3 >= \"end\" OR $4 <= start)"
 	QueryDeleteReservation = "DELETE FROM " + TableReservations + " WHERE email=$1 AND hotel=$2 AND number=$3 AND start=$4 AND \"end\"=$5"
 )
 
 // Hotel service endpoints (format strings)
 const (
-	HotelRoomCheckEndpoint      = "/hotels/%s/rooms/%d"
-	HotelAvailableRoomsEndpoint = "/hotels/%s/rooms/"
-	HotelRoomPriceEndpoint      = "/hotels/%s/rooms/%d"
+	HotelRoomCheckEndpoint      = "/hotel/%s/rooms/%d"
+	HotelAvailableRoomsEndpoint = "/hotel/%s/rooms/"
+	HotelRoomPriceEndpoint      = "/hotel/%s/rooms/%d"
+	HotelOwnerEmailEndpoint     = "/hotel/%s/"
 	PaymentInitiateEndpoint     = "/payments/initiate"
 )
 
@@ -60,6 +62,14 @@ const (
 	EnvPaymentServicePort     = "PAYMENT_SERVICE_PORT"
 	EnvPaymentServiceTimeout  = "PAYMENT_SERVICE_TIMEOUT"
 	DefaultPaymentServicePort = "8081"
+)
+
+// Kafka env keys and defaults
+const (
+	EnvKafkaHost      = "KAFKA_HOST"
+	EnvKafkaTopic     = "KAFKA_TOPIC"
+	DefaultKafkaHost  = "localhost:9092"
+	DefaultKafkaTopic = "bookings"
 )
 
 // Messages
