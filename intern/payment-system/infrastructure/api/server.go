@@ -25,6 +25,7 @@ func CreateServer(context context.Context, usecase *application.PaymentsUseCase,
 	router.HandleFunc(config.RouterPrefix+"/link", handlers.PaymentRequestHandler).Methods("POST")
 	router.HandleFunc(config.RouterPrefix+"/confirm/{key}", handlers.ConfirmPaymentHandler).Methods("POST")
 	router.HandleFunc(config.RouterPrefix+"/page/{key}", handlers.RenderPaymentPageHandler).Methods("GET")
+	router.Handle("/metrics", promhttp.Handler())
 
 	server := http.Server{
 		Handler: router,
@@ -51,10 +52,4 @@ func StartServer(context context.Context, usecase *application.PaymentsUseCase, 
 	if err != nil {
 		slog.Error(constants.MsgShutdownSystem, constants.KeyError, err.Error())
 	}
-}
-
-func AddMetricsHandler(config *config.Config) {
-	http.Handle("/metrics", promhttp.Handler())
-
-	go http.ListenAndServe(config.Host+":9000", nil)
 }
