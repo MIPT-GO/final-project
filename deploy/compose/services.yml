@@ -6,6 +6,12 @@ services:
       - ${PWD}/config/db/hotel_db.env
     volumes:
       - hotel_data:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
+      interval: 5s
+      timeout: 30s
+      retries: 5
+      start_period: 5s
     ports:
       - "5432:5432"
     networks:
@@ -15,9 +21,15 @@ services:
     image: postgres:alpine
     restart: always
     env_file:
-      - ${PWD}/config/db/hotel_db.env
+      - ${PWD}/config/db/booking_db.env
     volumes:
       - booking_data:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
+      interval: 5s
+      timeout: 30s
+      retries: 5
+      start_period: 5s
     ports:
       - "5433:5432"
     networks:
@@ -35,6 +47,7 @@ services:
 
   payment_system:
     image: "payment_system:dev"
+    restart: always
     build:
       target: runtime
       context: ${PWD}
@@ -47,15 +60,16 @@ services:
     volumes:
       - ${PWD}/intern/payment-system/infrastructure/templates:/app/templates
     env_file:
-      - ${PWD}/config/services/.payment-system.env
+      - ${PWD}/config/services/payment-system.env
     environment:
       - TEMPLATE_DIR=/app/templates
-    depends_on:
+      - RUN_MIGRATIONS=false
     networks:
       - services_network
 
   booking:
     image: "booking:dev"
+    restart: always
     build:
       target: runtime
       context: ${PWD}
@@ -66,8 +80,12 @@ services:
         - "booking:dev"
         - "booking:latest"
     env_file:
-      - ${PWD}/config/services/.booking.env
+      - ${PWD}/config/services/booking.env
+    volumes:
+      - ${PWD}/migrations/booking:/app/migrations
     depends_on:
+      booking_db:
+        condition: service_healthy
     networks:
       - services_network
       - kafka_network

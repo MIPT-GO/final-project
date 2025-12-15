@@ -1,6 +1,7 @@
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.7.7
+    restart: always
     environment:
       - ZOOKEEPER_CLIENT_PORT=2181
     ports:
@@ -10,6 +11,7 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:7.7.7
+    restart: always
     environment:
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
       - KAFKA_LISTENERS=PLAINTEXT://kafka:29092,PLAINTEXT_HOST://0.0.0.0:9092
@@ -22,6 +24,11 @@ services:
       - KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0
       - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
       - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
+    healthcheck:
+      test: kafka-topics --bootstrap-server localhost:9092 --list
+      interval: 5s
+      timeout: 10s
+      retries: 10
     ports:
       - "9092:9092"
       - "7071:7071"
@@ -33,10 +40,10 @@ services:
   init-topics:
     image: confluentinc/cp-kafka:7.7.0
     environment:
-      BOOTSTRAP_SERVER: broker:9092
+      BOOTSTRAP_SERVER: kafka:29092
     volumes:
       - ${PWD}/scripts/init-topics.sh:/init-topics.sh:ro
-    entrypoint: /init-topics.sh
+    entrypoint: ["/bin/bash", "/init-topics.sh"]
     depends_on:
       kafka:
         condition: service_healthy
@@ -45,6 +52,7 @@ services:
 
   jmx_exporter:
     image: bitnami/jmx-exporter:latest
+    restart: always
     environment:
       - SERVICE_PORT=5556
     volumes:

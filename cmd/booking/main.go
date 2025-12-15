@@ -14,6 +14,7 @@ import (
 	"final-project/intern/booking/infrastructure/server"
 	"final-project/pkg/booking/constants"
 
+	_ "github.com/lib/pq"
 	"log/slog"
 )
 

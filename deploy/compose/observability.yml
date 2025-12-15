@@ -1,6 +1,7 @@
 services:
   loki:
     image: grafana/loki:main-0edc65d
+    restart: always
     command:
       - --config.file=/etc/loki/local-config.yml
     volumes:
@@ -13,6 +14,7 @@ services:
 
   tempo:
     image: grafana/tempo:main-d1ec3c6
+    restart: always
     command:
       - --config.file=/etc/tempo-config.yml
     volumes:
@@ -55,6 +57,7 @@ services:
 
   prometheus:
     image: prom/prometheus:v3.8.0
+    restart: always
     volumes:
       - ${PWD}/config/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
@@ -73,9 +76,9 @@ services:
 
   grafana:
     image: grafana/grafana:12.4.0-20151846001
-    environment:
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    restart: always
+    env_file:
+      - ${PWD}/config/grafana/grafana.env
     volumes:
       - ${PWD}/config/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
       - ${PWD}/config/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards

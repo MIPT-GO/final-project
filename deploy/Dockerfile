@@ -34,7 +34,10 @@ ARG GID=1000
 RUN apk update && apk add --no-cache \
     ca-certificates \
     tzdata \
-    curl
+    curl \
+    postgresql-client \
+    bash  \
+    && curl -fsSL https://raw.githubusercontent.com/pressly/goose/v3.20.0/install.sh | bash
 
 WORKDIR /app
 
@@ -45,8 +48,12 @@ RUN addgroup -g "${GID}" -S gopher && \
 
 COPY --from=builder --chown=gopher:gopher /src/bin/app .
 
+COPY --chown=gopher:gopher deploy/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
 USER gopher:gopher
 
 EXPOSE 8080
 
-ENTRYPOINT ["./app"]
+ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["./app"]
