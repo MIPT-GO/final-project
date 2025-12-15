@@ -10,19 +10,20 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"final-project/intern/hotel/domain/entity"
+	"final-project/intern/hotel/domain/interfaces"
 	"final-project/intern/hotel/infrastructure/repository"
 	"final-project/pkg/custom_errors"
 )
 
-var testLogger = slog.New(slog.NewTextHandler(nil, nil))
+var hotelTestLoger = slog.New(slog.NewTextHandler(nil, nil))
 
-func setup(t *testing.T) (*repository.HotelRepositoryImpl, *sql.DB, sqlmock.Sqlmock) {
+func setup(t *testing.T) (interfaces.HotelRepository, *sql.DB, sqlmock.Sqlmock) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	repo := repository.NewHotelRepository(db, testLogger).(*repository.HotelRepositoryImpl)
+	repo := repository.NewHotelRepository(db, hotelTestLoger)
 	return repo, db, mock
 }
 

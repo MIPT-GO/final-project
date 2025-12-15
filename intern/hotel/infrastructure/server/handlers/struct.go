@@ -5,6 +5,8 @@ import (
 	"final-project/intern/hotel/domain/interfaces"
 	"log/slog"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func RespondJSON(w http.ResponseWriter, statusCode int, body interface{}) {
@@ -16,10 +18,8 @@ func RespondJSON(w http.ResponseWriter, statusCode int, body interface{}) {
 }
 
 func getPathParam(r *http.Request, name string) string {
-	if name == "hotel" {
-		return "GrandHotel"
-	}
-	return ""
+	vars := mux.Vars(r)
+	return vars[name]
 }
 
 type HotelHandlerImpl struct {

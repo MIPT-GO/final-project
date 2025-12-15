@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gorilla/mux"
+
 	"final-project/intern/hotel/application/service/hotel_service"
 	"final-project/intern/hotel/application/service/room_service"
 	"final-project/intern/hotel/domain/interfaces"
@@ -47,10 +49,10 @@ func NewServer(log *slog.Logger, db *sql.DB, addr string, readTimeout, writeTime
 	}
 }
 
-func setupRoutes(h interfaces.HotelHandler, log *slog.Logger) *http.ServeMux {
+func setupRoutes(h interfaces.HotelHandler, log *slog.Logger) *mux.Router {
 	log.Info(logs.MsgStartOperation, logs.KeyEvent, logs.EventRouterSetup)
 
-	mux := http.NewServeMux()
+	router := mux.NewRouter()
 
 	logRoute := func(method, path string) {
 		log.Debug(logs.MsgRouteRegistered,
@@ -59,26 +61,26 @@ func setupRoutes(h interfaces.HotelHandler, log *slog.Logger) *http.ServeMux {
 			slog.String("path", path))
 	}
 
-	mux.HandleFunc("GET /v1/hotel/all/", h.GetAllHotels)
+	router.HandleFunc("/v1/hotel/all/", h.GetAllHotels).Methods("GET")
 	logRoute("GET", "/v1/hotel/all/")
 
-	mux.HandleFunc("POST /v1/hotel/", h.CreateHotel)
+	router.HandleFunc("/v1/hotel/", h.CreateHotel).Methods("POST")
 	logRoute("POST", "/v1/hotel/")
 
-	mux.HandleFunc("GET /v1/hotel/{hotel}/", h.GetOneHotel)
+	router.HandleFunc("/v1/hotel/{hotel}/", h.GetOneHotel).Methods("GET")
 	logRoute("GET", "/v1/hotel/{hotel}/")
 
-	mux.HandleFunc("GET /v1/hotel/{hotel}/rooms/", h.GetAllRooms)
+	router.HandleFunc("/v1/hotel/{hotel}/rooms/", h.GetAllRooms).Methods("GET")
 	logRoute("GET", "/v1/hotel/{hotel}/rooms/")
 
-	mux.HandleFunc("PUT /v1/hotel/{hotel}/room/", h.UpdateRoom)
+	router.HandleFunc("/v1/hotel/{hotel}/room/", h.UpdateRoom).Methods("PUT")
 	logRoute("PUT", "/v1/hotel/{hotel}/room/")
 
-	mux.HandleFunc("GET /v1/hotel/{hotel}/room/{number}", h.GetRoom)
-	logRoute("GET", "/v1/hotel/{hotel}/rooms/{number}")
+	router.HandleFunc("/v1/hotel/{hotel}/room/{number}", h.GetRoom).Methods("GET")
+	logRoute("GET", "/v1/hotel/{hotel}/room/{number}")
 
 	log.Info(logs.MsgOperationSuccess, logs.KeyEvent, logs.EventRouterSetup)
-	return mux
+	return router
 }
 
 func (s *HotelServer) Run() error {

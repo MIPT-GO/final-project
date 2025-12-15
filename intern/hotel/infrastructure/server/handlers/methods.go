@@ -3,12 +3,13 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"final-project/intern/hotel/infrastructure/server/dto"
-	"final-project/pkg/custom_errors"
-	"final-project/pkg/logs"
 	"log/slog"
 	"net/http"
 	"strconv"
+
+	"final-project/intern/hotel/infrastructure/server/dto"
+	"final-project/pkg/custom_errors"
+	"final-project/pkg/logs"
 )
 
 // GET /v1/hotel/all/
