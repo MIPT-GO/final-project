@@ -13,7 +13,6 @@ import (
 
 	"final-project/intern/hotel/domain/entity"
 	"final-project/intern/hotel/domain/interfaces"
-	"final-project/intern/hotel/infrastructure/repository"
 	"final-project/pkg/custom_errors"
 )
 
@@ -25,7 +24,7 @@ func setupRoomRepo(t *testing.T) (interfaces.RoomRepository, *sql.DB, sqlmock.Sq
 		t.Fatal(err)
 	}
 
-	repo := repository.NewRoomRepository(db, roomTestLogger)
+	repo := NewRoomRepository(db, roomTestLogger)
 	return repo, db, mock
 }
 

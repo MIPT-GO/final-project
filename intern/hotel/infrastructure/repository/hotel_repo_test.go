@@ -11,7 +11,6 @@ import (
 
 	"final-project/intern/hotel/domain/entity"
 	"final-project/intern/hotel/domain/interfaces"
-	"final-project/intern/hotel/infrastructure/repository"
 	"final-project/pkg/custom_errors"
 )
 
@@ -23,7 +22,7 @@ func setup(t *testing.T) (interfaces.HotelRepository, *sql.DB, sqlmock.Sqlmock) 
 		t.Fatal(err)
 	}
 
-	repo := repository.NewHotelRepository(db, hotelTestLoger)
+	repo := NewHotelRepository(db, hotelTestLoger)
 	return repo, db, mock
 }
 
