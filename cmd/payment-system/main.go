@@ -8,6 +8,7 @@ import (
 	"final-project/intern/payment-system/infrastructure/render"
 	"final-project/intern/payment-system/infrastructure/storage"
 	"final-project/intern/payment-system/infrastructure/webhook"
+	"final-project/pkg/payment-system/constants"
 	"flag"
 	"log/slog"
 	"net/http"
@@ -46,18 +47,14 @@ func main() {
 
 	config := config.Config{}
 	config.LoadFromEnv()
-	logger.Debug("Load setting from environment")
 
 	redis := storage.RedisStorage{}
 	err := redis.NewStorage(context.Background(), &config)
 
 	if err != nil {
-		logger.Error("Cannot connect to database")
-		logger.Error(err.Error())
+		logger.Error(constants.MsgFailedConnectionDB, constants.KeyError, err.Error())
 		panic(err)
 	}
-
-	logger.Debug("Connected to database")
 
 	generator := storage.RandomKeyGenerator{}
 
