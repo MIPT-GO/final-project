@@ -31,9 +31,6 @@ type ListGroupsResponseGroup struct {
 
 	// Coordinator is the ID of the coordinator broker for the group.
 	Coordinator int
-
-	// The group protocol type (eg "consumer", "connect")
-	ProtocolType string
 }
 
 func (c *Client) ListGroups(
@@ -51,9 +48,8 @@ func (c *Client) ListGroups(
 
 	for _, apiGroupInfo := range apiResp.Groups {
 		resp.Groups = append(resp.Groups, ListGroupsResponseGroup{
-			GroupID:      apiGroupInfo.GroupID,
-			Coordinator:  int(apiGroupInfo.BrokerID),
-			ProtocolType: apiGroupInfo.ProtocolType,
+			GroupID:     apiGroupInfo.GroupID,
+			Coordinator: int(apiGroupInfo.BrokerID),
 		})
 	}
 
@@ -129,7 +125,7 @@ func (t *listGroupsResponseV1) readFrom(r *bufio.Reader, size int) (remain int, 
 
 	fn := func(withReader *bufio.Reader, withSize int) (fnRemain int, fnErr error) {
 		var item listGroupsResponseGroupV1
-		if fnRemain, fnErr = (&item).readFrom(withReader, withSize); fnErr != nil {
+		if fnRemain, fnErr = (&item).readFrom(withReader, withSize); err != nil {
 			return
 		}
 		t.Groups = append(t.Groups, item)
