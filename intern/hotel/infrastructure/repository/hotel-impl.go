@@ -82,27 +82,6 @@ func (r *HotelRepositoryImpl) GetByName(name string) (entity.Hotel, error) {
 	return h, nil
 }
 
-func (r *HotelRepositoryImpl) GetByEmail(email string) (string, error) {
-	var foundEmail string
-	query := "SELECT email FROM hotels WHERE email = $1"
-	row := r.DB.QueryRow(query, email)
-
-	err := row.Scan(&foundEmail)
-
-	if errors.Is(err, sql.ErrNoRows) {
-		return "", custom_errors.ErrEntityNotFound
-	}
-	if err != nil {
-		r.Log.Error(logs.MsgDatabaseQueryFailed,
-			logs.KeyEvent, logs.EventDBScan,
-			logs.KeyHotelEmail, email,
-			logs.KeyError, err)
-		return "", custom_errors.ErrRepoScanFailed
-	}
-
-	return foundEmail, nil
-}
-
 func (r *HotelRepositoryImpl) AddNewHotel(hotel entity.Hotel) error {
 	query := "INSERT INTO hotels (name, email) VALUES ($1, $2)"
 	_, err := r.DB.Exec(query, hotel.Name, hotel.Email)

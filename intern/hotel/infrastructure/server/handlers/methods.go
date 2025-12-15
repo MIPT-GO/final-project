@@ -100,16 +100,11 @@ func (h *HotelHandlerImpl) UpdateRoom(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.RoomService.UpdateCost(hotelName, req.Number, req.NewCost, req.UserEmail)
+	err := h.RoomService.UpdateCost(hotelName, req.Number, req.NewCost)
 
 	if errors.Is(err, custom_errors.ErrEntityNotFound) {
 		h.Log.Warn(logs.MsgEntityNotFound, logs.KeyHotelName, hotelName, slog.Int(logs.KeyRoomNumber, req.Number))
 		http.Error(w, "Room or Hotel not found", http.StatusNotFound)
-		return
-	}
-	if errors.Is(err, custom_errors.ErrPermissionDenied) {
-		h.Log.Warn(logs.MsgPermissionDenied, logs.KeyHotelName, hotelName, logs.KeyUserEmail, req.UserEmail)
-		http.Error(w, "Permission denied", http.StatusForbidden)
 		return
 	}
 	if errors.Is(err, custom_errors.ErrDatabaseFailure) {
@@ -174,16 +169,16 @@ func (h *HotelHandlerImpl) CreateRoom(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.RoomService.Create(hotelName, req.Number, req.Cost, req.UserEmail)
+	err := h.RoomService.Create(hotelName, req.Number, req.Cost)
 
 	if errors.Is(err, custom_errors.ErrEntityAlreadyExists) {
 		h.Log.Warn(logs.MsgEntityAlreadyExists, logs.KeyHotelName, hotelName, slog.Int(logs.KeyRoomNumber, req.Number))
 		http.Error(w, "Room already exists", http.StatusConflict)
 		return
 	}
-	if errors.Is(err, custom_errors.ErrPermissionDenied) {
-		h.Log.Warn(logs.MsgPermissionDenied, logs.KeyHotelName, hotelName, logs.KeyUserEmail, req.UserEmail)
-		http.Error(w, "Permission denied", http.StatusForbidden)
+	if errors.Is(err, custom_errors.ErrEntityNotFound) {
+		h.Log.Warn(logs.MsgEntityNotFound, logs.KeyHotelName, hotelName)
+		http.Error(w, "Hotel not found", http.StatusNotFound)
 		return
 	}
 	if errors.Is(err, custom_errors.ErrDatabaseFailure) {

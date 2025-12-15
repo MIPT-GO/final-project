@@ -88,38 +88,6 @@ func TestGetByName(t *testing.T) {
 	})
 }
 
-func TestGetByEmail(t *testing.T) {
-	t.Run("success", func(t *testing.T) {
-		repo, db, mock := setup(t)
-		defer db.Close()
-
-		rows := sqlmock.NewRows([]string{"email"}).
-			AddRow("a@mail.com")
-
-		mock.ExpectQuery(`SELECT email FROM hotels WHERE email = \$1`).
-			WithArgs("a@mail.com").
-			WillReturnRows(rows)
-
-		email, err := repo.GetByEmail("a@mail.com")
-		assert.NoError(t, err)
-		assert.Equal(t, "a@mail.com", email)
-		assert.NoError(t, mock.ExpectationsWereMet())
-	})
-
-	t.Run("not found", func(t *testing.T) {
-		repo, db, mock := setup(t)
-		defer db.Close()
-
-		mock.ExpectQuery(`SELECT email FROM hotels WHERE email = \$1`).
-			WithArgs("missing@mail.com").
-			WillReturnError(sql.ErrNoRows)
-
-		_, err := repo.GetByEmail("missing@mail.com")
-		assert.ErrorIs(t, err, custom_errors.ErrEntityNotFound)
-		assert.NoError(t, mock.ExpectationsWereMet())
-	})
-}
-
 func TestGetAll(t *testing.T) {
 	repo, db, mock := setup(t)
 	defer db.Close()
