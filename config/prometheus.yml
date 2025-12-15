@@ -1,11 +1,24 @@
 global:
-  scrape_interval: 1s
+  scrape_interval: 5s
+  scrape_timeout: 10s
 
 scrape_configs:
   - job_name: 'prometheus'
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: [ 'localhost:9090' ]
 
   - job_name: 'kafka-jmx'
     static_configs:
-      - targets: ['jmx_exporter:5556']
+      - targets: [ 'jmx_exporter:5556' ]
+
+  - job_name: 'hotel'
+    static_configs:
+      - targets: [ 'hotel:8083' ]
+
+  - job_name: 'payment_system'
+    static_configs:
+      - targets: [ 'payment_system:8082' ]
+
+  - job_name: 'booking'
+    static_configs:
+      - targets: [ 'booking:8081' ]

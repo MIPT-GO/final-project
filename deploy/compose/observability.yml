@@ -69,10 +69,10 @@ services:
       - "9090:9090"
     depends_on:
       - jmx_exporter
-      - tempo
     networks:
       - kafka_network
       - grafana_network
+      - services_network
 
   grafana:
     image: grafana/grafana:12.4.0-20151846001
