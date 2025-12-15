@@ -2,24 +2,26 @@
 
 ## Description
 
-Сервис для управления сущностями отелей и комнат, предоставляющий RESTful API и использующий структурированное логирование.
+Сервис для управления сущностями отелей и комнат, предоставляющий RESTful API и использующий структурированное
+логирование.
 
 ## Launch
 
 Исполняемый файл сервиса требует корректно установленных переменных окружения для конфигурации.
+
 ### Environment Variables
 
 Система использует следующие переменные окружения, в основном для подключения к базе данных и настройки сервера:
 
 | Variable            | Default Value |
-| :------------------ | :------------ |
+|:--------------------|:--------------|
 | `HOST`              | `0.0.0.0`     |
 | `PORT`              | `8080`        |
 | `DB_HOST`           | `localhost`   |
 | `DB_PORT`           | `5432`        |
 | `DB_USER`           | `postgres`    |
 | `DB_PASSWORD`       | `secret`      |
-| `DB_NAME`           | `hotel_db`    |
+| `DB_DATABASE`       | `hotel_db`    |
 | `READ_TIMEOUT_SEC`  | `5`           |
 | `WRITE_TIMEOUT_SEC` | `10`          |
 | `IDLЕ_TIMEOUT_SEC`  | `15`          |
@@ -47,7 +49,10 @@ Response Body:
 
 ```json
 {
-   "hotels": ["string", ...]
+  "hotels": [
+    "string",
+    ...
+  ]
 }
 ```
 
@@ -62,9 +67,9 @@ POST /v1/hotel/
 Request Body:
 
 ```json
-{ 
-    "name": "string",
-    "email": "string"
+{
+  "name": "string",
+  "email": "string"
 }
 ```
 
@@ -98,9 +103,9 @@ Status Codes:
 Response Body:
 
 ```json
-{ 
-    "name": "string",
-    "email": "string"
+{
+  "name": "string",
+  "email": "string"
 }
 ```
 
@@ -123,7 +128,10 @@ Response Body:
 
 ```json
 {
-   "numbers": [int, ...]
+  "numbers": [
+    int,
+    ...
+  ]
 }
 ```
 
@@ -148,7 +156,7 @@ Response Body:
 
 ```json
 {
-   "cost": 150.50
+  "cost": 150.50
 }
 ```
 
@@ -164,9 +172,9 @@ Request body:
 
 ```json
 {
-   "number": 101,
-   "new_cost": 150.50,
-   "user_email": "owner@hotel.com"
+  "number": 101,
+  "new_cost": 150.50,
+  "user_email": "owner@hotel.com"
 }
 ```
 

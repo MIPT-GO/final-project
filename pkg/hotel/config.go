@@ -53,7 +53,7 @@ func (config *Config) LoadFromEnv() {
 	config.DBPort = LoadInt("DB_PORT", 5432)
 	config.DBUser = LoadString("DB_USER", "postgres")
 	config.DBPassword = LoadString("DB_PASSWORD", "secret")
-	config.DBName = LoadString("DB_NAME", "hotel_db")
+	config.DBName = LoadString("DB_DATABASE", "hotel_db")
 }
 
 func (c *Config) GetDBConnectionString() string {

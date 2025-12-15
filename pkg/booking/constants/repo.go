@@ -1,14 +1,14 @@
 package constants
 
 const (
-	EnvPostgresHost        = "PG_HOST"
-	EnvPostgresPort        = "PG_PORT"
-	EnvPostgresUser        = "PG_USER"
-	EnvPostgresPassword    = "PG_PASSWORD"
-	EnvPostgresDB          = "PG_DATABASE"
-	EnvPostgresMaxOpen     = "PG_MAX_OPEN"
-	EnvPostgresMaxIdle     = "PG_MAX_IDLE"
-	EnvPostgresConnTimeout = "PG_CONN_TIMEOUT"
+	EnvPostgresHost        = "DB_HOST"
+	EnvPostgresPort        = "DB_PORT"
+	EnvPostgresUser        = "DB_USER"
+	EnvPostgresPassword    = "DB_PASSWORD"
+	EnvPostgresDB          = "DB_DATABASE"
+	EnvPostgresMaxOpen     = "DB_MAX_OPEN"
+	EnvPostgresMaxIdle     = "DB_MAX_IDLE"
+	EnvPostgresConnTimeout = "DB_CONN_TIMEOUT"
 	DefaultPostgresPort    = "5432"
 )
 

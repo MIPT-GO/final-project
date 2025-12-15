@@ -94,6 +94,31 @@ services:
       - services_network
       - kafka_network
 
+  hotel:
+    image: "hotel:dev"
+    restart: always
+    build:
+      target: runtime
+      context: ${PWD}
+      dockerfile: ${PWD}/deploy/Dockerfile
+      args:
+        APP: hotel
+      cache_from:
+        - "hotel:dev"
+        - "hotel:latest"
+    env_file:
+      - ${PWD}/config/services/hotel.env
+    ports:
+      - "8083:8080"
+    volumes:
+      - ${PWD}/migrations/hotel:/app/migrations
+    depends_on:
+      hotel_db:
+        condition: service_healthy
+    networks:
+      - services_network
+      - kafka_network
+
 volumes:
   hotel_data:
   booking_data:

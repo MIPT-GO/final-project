@@ -1,11 +1,11 @@
 # Booking Service
 
 ## Environment (env/booking.dev.env)
-- `PG_HOST` — Postgres host (example: `localhost`)
-- `PG_PORT` — Postgres port (example: `5432`)
-- `PG_USER` — Postgres user (example: `postgres`)
-- `PG_PASSWORD` — Postgres password (example: `postgres`)
-- `PG_DATABASE` — Postgres database name (example: `booking`)
+- `DB_HOST` — Postgres host (example: `localhost`)
+- `DB_PORT` — Postgres port (example: `5432`)
+- `DB_USER` — Postgres user (example: `postgres`)
+- `DB_PASSWORD` — Postgres password (example: `postgres`)
+- `DB_DATABASE` — Postgres database name (example: `booking`)
 
 - `HOTEL_SERVICE_HOST` — Hotel service base URL (include scheme, e.g. `http://localhost`)
 - `HOTEL_SERVICE_PORT` — Hotel service port (example: `8081`)
