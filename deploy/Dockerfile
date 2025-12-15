@@ -16,6 +16,8 @@ RUN apk update && apk add --no-cache \
 COPY go.mod go.sum ./
 RUN go mod download && go mod verify
 
+RUN go install github.com/pressly/goose/v3/cmd/goose@latest
+
 COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
