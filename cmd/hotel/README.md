@@ -14,7 +14,7 @@
 Система использует следующие переменные окружения, в основном для подключения к базе данных и настройки сервера:
 
 | Variable            | Default Value |
-|:--------------------|:--------------|
+| :------------------ | :------------ |
 | `HOST`              | `0.0.0.0`     |
 | `PORT`              | `8080`        |
 | `DB_HOST`           | `localhost`   |
@@ -189,3 +189,30 @@ Status Codes:
 ```
 
 No response body.
+
+
+```
+POST /v1/hotel/{hotel: str}/room/
+```
+
+Request body:
+
+```json
+{
+  "number": 101,
+  "cost": 150.50,
+  "user_email": "owner@hotel.com"
+}
+```
+
+Status Codes:
+
+```
+201 Created
+400 Bad Request (Неверный формат)
+409 Conflict (Room Already Exists)
+500 Internal Service Error
+```
+
+No response body.
+

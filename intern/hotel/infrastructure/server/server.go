@@ -79,6 +79,9 @@ func setupRoutes(h interfaces.HotelHandler, log *slog.Logger) *mux.Router {
 	router.HandleFunc("/v1/hotel/{hotel}/room/{number}", h.GetRoom).Methods("GET")
 	logRoute("GET", "/v1/hotel/{hotel}/room/{number}")
 
+	router.HandleFunc("/v1/hotel/{hotel}/room/", h.CreateRoom).Methods("POST")
+	logRoute("POST", "/v1/hotel/{hotel}/room/")
+
 	log.Info(logs.MsgOperationSuccess, logs.KeyEvent, logs.EventRouterSetup)
 	return router
 }
