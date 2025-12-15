@@ -61,11 +61,11 @@ services:
       - ${PWD}/intern/payment-system/infrastructure/templates:/app/templates
     env_file:
       - ${PWD}/config/services/payment-system.env
-    ports:
-      - "8082:8082"
     environment:
       - TEMPLATE_DIR=/app/templates
       - RUN_MIGRATIONS=false
+    ports:
+      - "8082:8082"
     networks:
       - services_network
 
@@ -114,6 +114,31 @@ services:
       - ${PWD}/migrations/hotel:/app/migrations
     depends_on:
       hotel_db:
+        condition: service_healthy
+    networks:
+      - services_network
+      - kafka_network
+
+  notification:
+    image: "notification:dev"
+    restart: always
+    build:
+      target: runtime
+      context: ${PWD}
+      dockerfile: ${PWD}/deploy/Dockerfile
+      args:
+        APP: notification
+      cache_from:
+        - "notification:dev"
+        - "notification:latest"
+    env_file:
+      - ${PWD}/config/services/notification.env
+    environment:
+      - RUN_MIGRATIONS=false
+    ports:
+      - "8084:8084"
+    depends_on:
+      kafka:
         condition: service_healthy
     networks:
       - services_network
