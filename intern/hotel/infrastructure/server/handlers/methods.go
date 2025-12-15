@@ -162,3 +162,35 @@ func (h *HotelHandlerImpl) GetRoom(w http.ResponseWriter, r *http.Request) {
 
 	RespondJSON(w, http.StatusOK, response)
 }
+
+// POST /v1/hotel/{hotel}/rooms/
+func (h *HotelHandlerImpl) CreateRoom(w http.ResponseWriter, r *http.Request) {
+	hotelName := getPathParam(r, "hotel")
+
+	var req dto.CreateRoomRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		h.Log.Warn("Failed to decode CreateRoom request", logs.KeyError, err)
+		http.Error(w, "Invalid request format", http.StatusBadRequest)
+		return
+	}
+
+	err := h.RoomService.Create(hotelName, req.Number, req.Cost, req.UserEmail)
+
+	if errors.Is(err, custom_errors.ErrEntityAlreadyExists) {
+		h.Log.Warn(logs.MsgEntityAlreadyExists, logs.KeyHotelName, hotelName, slog.Int(logs.KeyRoomNumber, req.Number))
+		http.Error(w, "Room already exists", http.StatusConflict)
+		return
+	}
+	if errors.Is(err, custom_errors.ErrPermissionDenied) {
+		h.Log.Warn(logs.MsgPermissionDenied, logs.KeyHotelName, hotelName, logs.KeyUserEmail, req.UserEmail)
+		http.Error(w, "Permission denied", http.StatusForbidden)
+		return
+	}
+	if errors.Is(err, custom_errors.ErrDatabaseFailure) {
+		h.Log.Error(logs.MsgDatabaseWriteFailed, logs.KeyHotelName, hotelName, logs.KeyError, err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	RespondJSON(w, http.StatusCreated, nil)
+}

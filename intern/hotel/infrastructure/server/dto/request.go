@@ -14,3 +14,9 @@ type UpdateRoomRequest struct {
 	NewCost   float32 `json:"new_cost"`
 	UserEmail string  `json:"user_email"`
 }
+
+type CreateRoomRequest struct {
+	Number    int     `json:"number"`
+	Cost      float32 `json:"cost"`
+	UserEmail string  `json:"user_email"`
+}
