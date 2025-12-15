@@ -7,7 +7,6 @@ import (
 type HotelRepository interface {
 	GetAll() ([]entity.Hotel, error)
 	GetByName(name string) (entity.Hotel, error)
-	GetByEmail(email string) (string, error)
 	AddNewHotel(entity.Hotel) error
 	ExistsByName(name string) (bool, error)
 }

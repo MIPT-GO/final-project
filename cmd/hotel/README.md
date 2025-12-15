@@ -162,7 +162,7 @@ Response Body:
 
 ### Update Room Cost
 
-Обновляет цену комнаты. Требуется `user_email` для проверки разрешений (должен быть владельцем отеля).
+Обновляет цену комнаты.
 
 ```
 PUT /v1/hotel/{hotel: str}/room/
@@ -174,7 +174,6 @@ Request body:
 {
   "number": 101,
   "new_cost": 150.50,
-  "user_email": "owner@hotel.com"
 }
 ```
 
@@ -183,13 +182,13 @@ Status Codes:
 ```
 200 OK
 400 Bad Request (Invalid format)
-403 Forbidden (Permission Denied)
 404 Not Found (Hotel or Room Not Found)
 500 Internal Service Error
 ```
 
 No response body.
 
+### Create Room 
 
 ```
 POST /v1/hotel/{hotel: str}/room/
@@ -201,7 +200,6 @@ Request body:
 {
   "number": 101,
   "cost": 150.50,
-  "user_email": "owner@hotel.com"
 }
 ```
 

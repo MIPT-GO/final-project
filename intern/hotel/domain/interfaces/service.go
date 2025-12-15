@@ -8,7 +8,7 @@ type HotelService interface {
 
 type RoomService interface {
 	GetAll(name string) ([]int, error)
-	Create(hotelName string, number int, cost float32, userEmail string) error
+	Create(hotelName string, number int, cost float32) error
 	GetCost(name string, number int) (float32, error)
-	UpdateCost(hotelName string, number int, newCost float32, userEmail string) error
+	UpdateCost(hotelName string, number int, newCost float32) error
 }

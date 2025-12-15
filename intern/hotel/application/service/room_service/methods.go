@@ -62,40 +62,19 @@ func (s *RoomServiceImpl) GetCost(hotelName string, number int) (float32, error)
 	return cost, nil
 }
 
-func (s *RoomServiceImpl) Create(hotelName string, number int, cost float32, userEmail string) error {
+func (s *RoomServiceImpl) Create(hotelName string, number int, cost float32) error {
 
 	s.Log.Info(logs.MsgStartOperation,
 		logs.KeyEvent, logs.EventRoomCreate,
 		logs.KeyHotelName, hotelName,
-		logs.KeyRoomNumber, number,
-		logs.KeyUserEmail, userEmail)
-
-	ownerEmail, err := s.HotelRep.GetByEmail(hotelName)
-
-	if errors.Is(err, custom_errors.ErrEntityNotFound) {
-		s.Log.Warn(logs.MsgEntityNotFound,
-			logs.KeyHotelName, hotelName)
-		return custom_errors.ErrEntityNotFound
-	}
-	if err != nil {
-		s.Log.Error(logs.MsgDatabaseQueryFailed,
-			logs.KeyError, err)
-		return custom_errors.ErrDatabaseFailure
-	}
-
-	if ownerEmail != userEmail {
-		s.Log.Warn(logs.MsgPermissionDenied,
-			logs.KeyEvent, logs.EventPermissionDenied,
-			logs.KeyUserEmail, userEmail)
-		return custom_errors.ErrPermissionDenied
-	}
+		logs.KeyRoomNumber, number)
 
 	newRoom := entity.Room{
 		HotelName: hotelName,
 		Number:    number,
 		Cost:      cost,
 	}
-	err = s.RoomRep.AddNewRoom(newRoom)
+	err := s.RoomRep.AddNewRoom(newRoom)
 	if err != nil {
 		if errors.Is(err, custom_errors.ErrEntityAlreadyExists) {
 			s.Log.Error(logs.MsgEntityAlreadyExists,
@@ -112,35 +91,13 @@ func (s *RoomServiceImpl) Create(hotelName string, number int, cost float32, use
 	return nil
 }
 
-func (s *RoomServiceImpl) UpdateCost(hotelName string, number int, newCost float32, userEmail string) error {
+func (s *RoomServiceImpl) UpdateCost(hotelName string, number int, newCost float32) error {
 	s.Log.Info(logs.MsgStartOperation,
 		logs.KeyEvent, logs.EventRoomCostUpdate,
 		logs.KeyHotelName, hotelName,
-		logs.KeyRoomNumber, number,
-		logs.KeyUserEmail, userEmail)
+		logs.KeyRoomNumber, number)
 
-	ownerEmail, err := s.HotelRep.GetByEmail(hotelName)
-
-	if errors.Is(err, custom_errors.ErrEntityNotFound) {
-		s.Log.Warn(logs.MsgEntityNotFound,
-			logs.KeyHotelName, hotelName)
-		return custom_errors.ErrEntityNotFound
-	}
-	if err != nil {
-		s.Log.Error(logs.MsgDatabaseQueryFailed,
-			logs.KeyHotelName, hotelName,
-			logs.KeyError, err)
-		return custom_errors.ErrDatabaseFailure
-	}
-
-	if ownerEmail != userEmail {
-		s.Log.Warn(logs.MsgPermissionDenied,
-			logs.KeyEvent, logs.EventPermissionDenied,
-			logs.KeyUserEmail, userEmail)
-		return custom_errors.ErrPermissionDenied
-	}
-
-	err = s.RoomRep.UpdateCost(hotelName, number, newCost)
+	err := s.RoomRep.UpdateCost(hotelName, number, newCost)
 
 	if errors.Is(err, custom_errors.ErrEntityNotFound) {
 		s.Log.Warn(logs.MsgUpdateFailure,
