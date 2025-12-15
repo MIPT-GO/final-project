@@ -2,11 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
-	"final-project/intern/booking/domain/models/reservation"
 	"final-project/pkg/booking/constants"
 )
 
@@ -24,39 +24,26 @@ func (h *handler) PaymentWebhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	q := r.URL.Query()
-	email := q.Get("email")
-	hotel := q.Get("hotel")
-	numberStr := q.Get("number")
-	startStr := q.Get("start")
-	endStr := q.Get("end")
-
-	var num uint64
-	if _, err := fmt.Sscanf(numberStr, "%d", &num); err != nil {
-		logger.Warn("invalid number in webhook URL", constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventFailedToFetch, constants.KeyError, err)
+	// extract id from path: /webhook/payment/{id}
+	path := strings.TrimPrefix(r.URL.Path, "/webhook/payment/")
+	path = strings.Trim(path, "/")
+	if path == "" {
+		logger.Warn("missing id in webhook path", constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventFailedToFetch)
 		http.Error(w, constants.MsgUnprocessableEntity, http.StatusUnprocessableEntity)
 		return
 	}
-
-	start, err := time.Parse(time.RFC3339, startStr)
+	id, err := strconv.ParseUint(path, 10, 64)
 	if err != nil {
-		logger.Warn("invalid start in webhook URL", constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventFailedToFetch, constants.KeyError, err)
-		http.Error(w, constants.MsgUnprocessableEntity, http.StatusUnprocessableEntity)
-		return
-	}
-	end, err := time.Parse(time.RFC3339, endStr)
-	if err != nil {
-		logger.Warn("invalid end in webhook URL", constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventFailedToFetch, constants.KeyError, err)
+		logger.Warn("invalid id in webhook path", constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventFailedToFetch, constants.KeyError, err)
 		http.Error(w, constants.MsgUnprocessableEntity, http.StatusUnprocessableEntity)
 		return
 	}
 
-	reserv := reservation.Reserve{
-		Email:  email,
-		Start:  start,
-		End:    end,
-		Hotel:  hotel,
-		Number: num,
+	reserv, err := h.service.GetById(uint64(id))
+	if err != nil {
+		logger.Error(constants.EventFailedToFetch, err, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventFailedToFetch)
+		http.Error(w, constants.MsgInternalServerError, http.StatusInternalServerError)
+		return
 	}
 
 	if p.Status == "timeout" {
@@ -65,6 +52,20 @@ func (h *handler) PaymentWebhook(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, constants.MsgInternalServerError, http.StatusInternalServerError)
 			return
 		}
+	}
+	if h.service.Producer != nil {
+		ownerEmail, _ := h.service.repo.GetHotelOwnerEmail(reserv.Hotel)
+		e := map[string]any{
+			"event":       "booking_created",
+			"email":       reserv.Email,
+			"owner_email": ownerEmail,
+			"hotel":       reserv.Hotel,
+			"number":      reserv.Number,
+			"start":       reserv.Start.Format(time.RFC3339),
+			"end":         reserv.End.Format(time.RFC3339),
+		}
+		b, _ := json.Marshal(e)
+		h.service.Producer.Send(b)
 	}
 	w.WriteHeader(http.StatusOK)
 }
