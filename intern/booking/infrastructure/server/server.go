@@ -19,10 +19,10 @@ func StartServer(port string, repo interfaces.Repository, logger interfaces.Logg
 	s := service.NewReservationService(repo, webhook, logger, producer)
 	h := handlers.NewHandler(s)
 	mux := http.NewServeMux()
-	mux.HandleFunc("/v1/booking/available/{email}/", h.GetByEmail)
+	mux.HandleFunc("/v1/booking/email/{email}/", h.GetByEmail)
 	mux.HandleFunc("/v1/booking/hotel/{hotel}/", h.GetByHotel)
 	mux.HandleFunc("/v1/booking/", h.BookRoomInHotel)
-	mux.HandleFunc("/v1/available/{hotel}/", h.BookRoomInHotel)
+	mux.HandleFunc("/v1/available/{hotel}/", h.Available)
 	mux.HandleFunc("/webhook/payment/{id}", h.PaymentWebhook)
 	serv := &http.Server{
 		Addr:    port,
