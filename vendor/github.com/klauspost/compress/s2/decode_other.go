@@ -11,6 +11,8 @@ package s2
 import (
 	"fmt"
 	"strconv"
+
+	"github.com/klauspost/compress/internal/le"
 )
 
 // decode writes the decoding of src to dst. It assumes that the varint-encoded
@@ -38,25 +40,25 @@ func s2Decode(dst, src []byte) int {
 			case x < 60:
 				s++
 			case x == 60:
+				x = uint32(src[s+1])
 				s += 2
-				x = uint32(src[s-1])
 			case x == 61:
-				in := src[s : s+3]
-				x = uint32(in[1]) | uint32(in[2])<<8
+				x = uint32(le.Load16(src, s+1))
 				s += 3
 			case x == 62:
-				in := src[s : s+4]
 				// Load as 32 bit and shift down.
-				x = uint32(in[0]) | uint32(in[1])<<8 | uint32(in[2])<<16 | uint32(in[3])<<24
+				x = le.Load32(src, s)
 				x >>= 8
 				s += 4
 			case x == 63:
-				in := src[s : s+5]
-				x = uint32(in[1]) | uint32(in[2])<<8 | uint32(in[3])<<16 | uint32(in[4])<<24
+				x = le.Load32(src, s+1)
 				s += 5
 			}
 			length = int(x) + 1
 			if length > len(dst)-d || length > len(src)-s || (strconv.IntSize == 32 && length <= 0) {
+				if debug {
+					fmt.Println("corrupt: lit size", length)
+				}
 				return decodeErrCodeCorrupt
 			}
 			if debug {
@@ -82,8 +84,7 @@ func s2Decode(dst, src []byte) int {
 					length = int(src[s]) + 4
 					s += 1
 				case 6:
-					in := src[s : s+2]
-					length = int(uint32(in[0])|(uint32(in[1])<<8)) + (1 << 8)
+					length = int(le.Load16(src, s)) + 1<<8
 					s += 2
 				case 7:
 					in := src[s : s+3]
@@ -96,19 +97,21 @@ func s2Decode(dst, src []byte) int {
 			}
 			length += 4
 		case tagCopy2:
-			in := src[s : s+3]
-			offset = int(uint32(in[1]) | uint32(in[2])<<8)
-			length = 1 + int(in[0])>>2
+			offset = int(le.Load16(src, s+1))
+			length = 1 + int(src[s])>>2
 			s += 3
 
 		case tagCopy4:
-			in := src[s : s+5]
-			offset = int(uint32(in[1]) | uint32(in[2])<<8 | uint32(in[3])<<16 | uint32(in[4])<<24)
-			length = 1 + int(in[0])>>2
+			offset = int(le.Load32(src, s+1))
+			length = 1 + int(src[s])>>2
 			s += 5
 		}
 
 		if offset <= 0 || d < offset || length > len(dst)-d {
+			if debug {
+				fmt.Println("corrupt: match, length", length, "offset:", offset, "dst avail:", len(dst)-d, "dst pos:", d)
+			}
+
 			return decodeErrCodeCorrupt
 		}
 
@@ -175,6 +178,9 @@ func s2Decode(dst, src []byte) int {
 			}
 			length = int(x) + 1
 			if length > len(dst)-d || length > len(src)-s || (strconv.IntSize == 32 && length <= 0) {
+				if debug {
+					fmt.Println("corrupt: lit size", length)
+				}
 				return decodeErrCodeCorrupt
 			}
 			if debug {
@@ -241,6 +247,9 @@ func s2Decode(dst, src []byte) int {
 		}
 
 		if offset <= 0 || d < offset || length > len(dst)-d {
+			if debug {
+				fmt.Println("corrupt: match, length", length, "offset:", offset, "dst avail:", len(dst)-d, "dst pos:", d)
+			}
 			return decodeErrCodeCorrupt
 		}
 

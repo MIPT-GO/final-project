@@ -73,5 +73,7 @@ func main() {
 		Config:     &config,
 	}
 
+	api.AddMetricsHandler(&config)
+
 	api.StartServer(context.Background(), &usecase, &config)
 }

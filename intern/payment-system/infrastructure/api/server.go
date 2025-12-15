@@ -12,6 +12,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func CreateServer(context context.Context, usecase *application.PaymentsUseCase, config *config.Config) *http.Server {
@@ -50,4 +51,10 @@ func StartServer(context context.Context, usecase *application.PaymentsUseCase, 
 	if err != nil {
 		slog.Error(constants.MsgShutdownSystem, constants.KeyError, err.Error())
 	}
+}
+
+func AddMetricsHandler(config *config.Config) {
+	http.Handle("/metrics", promhttp.Handler())
+
+	go http.ListenAndServe(config.Host+":9000", nil)
 }
