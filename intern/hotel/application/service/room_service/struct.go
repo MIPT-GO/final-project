@@ -6,15 +6,13 @@ import (
 )
 
 type RoomServiceImpl struct {
-	Log      *slog.Logger
-	HotelRep interfaces.HotelRepository
-	RoomRep  interfaces.RoomRepository
+	Log     *slog.Logger
+	RoomRep interfaces.RoomRepository
 }
 
 func NewRoomService(
 	log *slog.Logger,
-	hotelRep interfaces.HotelRepository,
 	roomRep interfaces.RoomRepository,
 ) interfaces.RoomService {
-	return &RoomServiceImpl{Log: log, HotelRep: hotelRep, RoomRep: roomRep}
+	return &RoomServiceImpl{Log: log, RoomRep: roomRep}
 }

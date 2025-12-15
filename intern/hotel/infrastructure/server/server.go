@@ -15,6 +15,8 @@ import (
 	"final-project/intern/hotel/infrastructure/repository"
 	"final-project/intern/hotel/infrastructure/server/handlers"
 	"final-project/pkg/logs"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type HotelServer struct {
@@ -28,7 +30,7 @@ func NewServer(log *slog.Logger, db *sql.DB, addr string, readTimeout, writeTime
 	rRepo := repository.NewRoomRepository(db, log)
 
 	hService := hotel_service.NewHotelService(log, hRepo)
-	rService := room_service.NewRoomService(log, hRepo, rRepo)
+	rService := room_service.NewRoomService(log, rRepo)
 
 	handlerImpl := handlers.NewHotelHandler(log, hService, rService)
 
@@ -106,4 +108,12 @@ func (s *HotelServer) Run() error {
 		logs.KeyEvent, logs.EventServerShutdown,
 		slog.String("addr", addr))
 	return nil
+}
+
+func AddMetricsHandler(host string) {
+	http.Handle("/metrics", promhttp.Handler())
+
+	go func() {
+		_ = http.ListenAndServe(host+":9000", nil)
+	}()
 }
