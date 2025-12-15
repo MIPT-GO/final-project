@@ -5,6 +5,7 @@ import (
 	"errors"
 	"final-project/intern/payment-system/config"
 	"final-project/intern/payment-system/domain"
+	"final-project/pkg/payment-system/constants"
 	"io"
 	"log/slog"
 	"time"
@@ -42,15 +43,15 @@ func (manager *PaymentsUseCase) CreatePaymentLink(ctx context.Context, amount st
 		info.Status = domain.TIMEOUT
 		err = manager.Repository.CreateRecord(context.Background(), key, info)
 		if err != nil {
-			slog.Error("Error during update status", "error", err.Error(), "key", key)
+			slog.Error(constants.MsgFailedUpdateRecord, constants.KeyError, err.Error(), constants.KeyPaymentKey, key)
 		}
 
 		err = manager.Sender.Send(info.WebHook, info.Status)
 		if err != nil {
-			slog.Error("Error during send request to webhook",
-				"error", err.Error(),
-				"key", key,
-				"webhook", webhook,
+			slog.Error(constants.MsgFailedSendRequest,
+				constants.KeyError, err.Error(),
+				constants.KeyPaymentKey, key,
+				constants.KeyWebHook, webhook,
 			)
 		}
 	})
@@ -61,7 +62,7 @@ func (manager *PaymentsUseCase) CreatePaymentLink(ctx context.Context, amount st
 func (manager *PaymentsUseCase) RenderPaymentPage(ctx context.Context, key string, writer io.Writer) error {
 	info, err := manager.Repository.GetRecord(ctx, key)
 	if err != nil || info.Status != domain.WAITING {
-		err = manager.Render.RenderMessagePage(writer, MessagePageData{"The payment has already been confirmed or the time has expired"})
+		err = manager.Render.RenderMessagePage(writer, MessagePageData{constants.MsgRecordExpired})
 		return err
 	}
 
@@ -83,7 +84,7 @@ func (manager *PaymentsUseCase) ConfirmPayment(ctx context.Context, key string) 
 	}
 
 	if info.Status != domain.WAITING {
-		return errors.New("The payment has already been confirmed or the time has expired")
+		return errors.New(constants.MsgRecordExpired)
 	}
 
 	info.Status = domain.OK
@@ -93,10 +94,10 @@ func (manager *PaymentsUseCase) ConfirmPayment(ctx context.Context, key string) 
 	go func() {
 		err := manager.Sender.Send(info.WebHook, info.Status)
 		if err != nil {
-			slog.Error("Error during send request to webhook",
-				"error", err.Error(),
-				"key", key,
-				"webhook", info.WebHook,
+			slog.Error(constants.MsgFailedSendRequest,
+				constants.KeyError, err.Error(),
+				constants.KeyPaymentKey, key,
+				constants.KeyWebHook, info.WebHook,
 			)
 		}
 	}()

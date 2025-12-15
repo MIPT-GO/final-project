@@ -4,7 +4,7 @@ import (
 	"context"
 	"final-project/intern/payment-system/application"
 	"final-project/intern/payment-system/config"
-	"fmt"
+	"final-project/pkg/payment-system/constants"
 	"log/slog"
 	"net/http"
 	"os"
@@ -39,15 +39,15 @@ func StartServer(context context.Context, usecase *application.PaymentsUseCase, 
 	ctx, cancel := signal.NotifyContext(context, os.Interrupt)
 	defer cancel()
 
-	slog.Info("Start payment system")
+	slog.Info(constants.MsgStartSystem)
 	go func() {
 		server.ListenAndServe()
 	}()
 	<-ctx.Done()
-	slog.Info("Shutdown payment system")
+	slog.Info(constants.MsgShutdownSystem)
 
 	err := server.Shutdown(context)
 	if err != nil {
-		fmt.Println(err.Error())
+		slog.Error(constants.MsgShutdownSystem, constants.KeyError, err.Error())
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"final-project/intern/payment-system/application"
 	"final-project/intern/payment-system/config"
 	"final-project/intern/payment-system/domain"
+	"final-project/pkg/payment-system/constants"
 	"io"
 	"testing"
 
@@ -169,7 +170,7 @@ func TestRenderPaymentPageTimeout(t *testing.T) {
 	assert.NoError(t, err)
 
 	assert.True(t, render.renderedMessage)
-	assert.Equal(t, "The payment has already been confirmed or the time has expired", render.messageData.Message)
+	assert.Equal(t, constants.MsgRecordExpired, render.messageData.Message)
 }
 
 func TestConfirmPaymentSuccess(t *testing.T) {
@@ -235,5 +236,5 @@ func TestConfirmPaymentTimeout(t *testing.T) {
 	err := usecase.ConfirmPayment(t.Context(), "test-key")
 
 	assert.Error(t, err)
-	assert.Equal(t, "The payment has already been confirmed or the time has expired", err.Error())
+	assert.Equal(t, constants.MsgRecordExpired, err.Error())
 }
