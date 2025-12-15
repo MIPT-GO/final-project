@@ -37,7 +37,7 @@ func TestRoomGetAll(t *testing.T) {
 			AddRow("Hotel", 1, 100).
 			AddRow("Hotel", 2, 200)
 
-		mock.ExpectQuery(`SELECT hotel_name, number, cost FROM Rooms WHERE hotel_name = \$1`).
+		mock.ExpectQuery(`SELECT hotel_name, number, cost FROM rooms WHERE hotel_name = \$1`).
 			WithArgs("Hotel").
 			WillReturnRows(rows)
 
@@ -52,7 +52,7 @@ func TestRoomGetAll(t *testing.T) {
 		repo, db, mock := setupRoomRepo(t)
 		defer db.Close()
 
-		mock.ExpectQuery(`SELECT hotel_name, number, cost FROM Rooms WHERE hotel_name = \$1`).
+		mock.ExpectQuery(`SELECT hotel_name, number, cost FROM rooms WHERE hotel_name = \$1`).
 			WithArgs("Hotel").
 			WillReturnError(errors.New("db error"))
 
@@ -72,7 +72,7 @@ func TestRoomGetCost(t *testing.T) {
 		rows := sqlmock.NewRows([]string{"cost"}).
 			AddRow(float32(200))
 
-		mock.ExpectQuery(`SELECT cost FROM Rooms WHERE hotel_name = \$1 AND number = \$2`).
+		mock.ExpectQuery(`SELECT cost FROM rooms WHERE hotel_name = \$1 AND number = \$2`).
 			WithArgs("Hotel", 10).
 			WillReturnRows(rows)
 
@@ -86,7 +86,7 @@ func TestRoomGetCost(t *testing.T) {
 		repo, db, mock := setupRoomRepo(t)
 		defer db.Close()
 
-		mock.ExpectQuery(`SELECT cost FROM Rooms WHERE hotel_name = \$1 AND number = \$2`).
+		mock.ExpectQuery(`SELECT cost FROM rooms WHERE hotel_name = \$1 AND number = \$2`).
 			WithArgs("Hotel", 99).
 			WillReturnError(sql.ErrNoRows)
 
@@ -107,7 +107,7 @@ func TestRoomAddNewRoom(t *testing.T) {
 		repo, db, mock := setupRoomRepo(t)
 		defer db.Close()
 
-		mock.ExpectExec(`INSERT INTO Rooms`).
+		mock.ExpectExec(`INSERT INTO rooms`).
 			WithArgs(room.HotelName, room.Number, room.Cost).
 			WillReturnResult(sqlmock.NewResult(1, 1))
 
@@ -120,7 +120,7 @@ func TestRoomAddNewRoom(t *testing.T) {
 		repo, db, mock := setupRoomRepo(t)
 		defer db.Close()
 
-		mock.ExpectExec(`INSERT INTO Rooms`).
+		mock.ExpectExec(`INSERT INTO rooms`).
 			WithArgs(room.HotelName, room.Number, room.Cost).
 			WillReturnError(&pq.Error{Code: "23505"})
 
@@ -135,7 +135,7 @@ func TestRoomUpdateCost(t *testing.T) {
 		repo, db, mock := setupRoomRepo(t)
 		defer db.Close()
 
-		mock.ExpectExec(`UPDATE Rooms`).
+		mock.ExpectExec(`UPDATE rooms`).
 			WithArgs("Hotel", 1, float32(300)).
 			WillReturnResult(sqlmock.NewResult(0, 1))
 
@@ -148,7 +148,7 @@ func TestRoomUpdateCost(t *testing.T) {
 		repo, db, mock := setupRoomRepo(t)
 		defer db.Close()
 
-		mock.ExpectExec(`UPDATE Rooms`).
+		mock.ExpectExec(`UPDATE rooms`).
 			WithArgs("Hotel", 99, float32(300)).
 			WillReturnResult(sqlmock.NewResult(0, 0))
 

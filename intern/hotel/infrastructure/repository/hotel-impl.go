@@ -25,7 +25,7 @@ func NewHotelRepository(db *sql.DB, log *slog.Logger) interfaces.HotelRepository
 }
 
 func (r *HotelRepositoryImpl) GetAll() ([]entity.Hotel, error) {
-	query := "SELECT name, email FROM Hotels"
+	query := "SELECT name, email FROM hotels"
 	rows, err := r.DB.Query(query)
 
 	if err != nil {
@@ -62,7 +62,7 @@ func (r *HotelRepositoryImpl) GetAll() ([]entity.Hotel, error) {
 }
 
 func (r *HotelRepositoryImpl) GetByName(name string) (entity.Hotel, error) {
-	query := "SELECT name, email FROM Hotels WHERE name = $1"
+	query := "SELECT name, email FROM hotels WHERE name = $1"
 	row := r.DB.QueryRow(query, name)
 
 	var h entity.Hotel
@@ -84,7 +84,7 @@ func (r *HotelRepositoryImpl) GetByName(name string) (entity.Hotel, error) {
 
 func (r *HotelRepositoryImpl) GetByEmail(email string) (string, error) {
 	var foundEmail string
-	query := "SELECT email FROM Hotels WHERE email = $1"
+	query := "SELECT email FROM hotels WHERE email = $1"
 	row := r.DB.QueryRow(query, email)
 
 	err := row.Scan(&foundEmail)
@@ -104,7 +104,7 @@ func (r *HotelRepositoryImpl) GetByEmail(email string) (string, error) {
 }
 
 func (r *HotelRepositoryImpl) AddNewHotel(hotel entity.Hotel) error {
-	query := "INSERT INTO Hotels (name, email) VALUES ($1, $2)"
+	query := "INSERT INTO hotels (name, email) VALUES ($1, $2)"
 	_, err := r.DB.Exec(query, hotel.Name, hotel.Email)
 
 	if err != nil {
@@ -125,7 +125,7 @@ func (r *HotelRepositoryImpl) AddNewHotel(hotel entity.Hotel) error {
 
 func (r *HotelRepositoryImpl) ExistsByName(name string) (bool, error) {
 	var exists bool
-	query := "SELECT EXISTS(SELECT 1 FROM Hotels WHERE name = $1)"
+	query := "SELECT EXISTS(SELECT 1 FROM hotels WHERE name = $1)"
 
 	err := r.DB.QueryRow(query, name).Scan(&exists)
 

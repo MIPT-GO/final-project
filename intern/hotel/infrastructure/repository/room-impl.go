@@ -26,7 +26,7 @@ func NewRoomRepository(db *sql.DB, log *slog.Logger) interfaces.RoomRepository {
 }
 
 func (r *RoomRepositoryImpl) GetAll(hotelName string) ([]entity.Room, error) {
-	query := "SELECT hotel_name, number, cost FROM Rooms WHERE hotel_name = $1"
+	query := "SELECT hotel_name, number, cost FROM rooms WHERE hotel_name = $1"
 	rows, err := r.DB.Query(query, hotelName)
 
 	if err != nil {
@@ -67,7 +67,7 @@ func (r *RoomRepositoryImpl) GetAll(hotelName string) ([]entity.Room, error) {
 func (r *RoomRepositoryImpl) GetCost(hotelName string, number int) (float32, error) {
 	var cost float32
 
-	query := "SELECT cost FROM Rooms WHERE hotel_name = $1 AND number = $2"
+	query := "SELECT cost FROM rooms WHERE hotel_name = $1 AND number = $2"
 	row := r.DB.QueryRow(query, hotelName, number)
 
 	err := row.Scan(&cost)
@@ -93,7 +93,7 @@ func (r *RoomRepositoryImpl) AddNewRoom(room entity.Room) error {
 		logs.KeyHotelName, room.HotelName)
 
 	query := `
-        INSERT INTO Rooms (hotel_name, number, cost) 
+        INSERT INTO rooms (hotel_name, number, cost) 
         VALUES ($1, $2, $3)`
 
 	_, err := r.DB.Exec(query, room.HotelName, room.Number, room.Cost)
@@ -122,7 +122,7 @@ func (r *RoomRepositoryImpl) UpdateCost(hotelName string, number int, newCost fl
 		logs.KeyHotelName, hotelName)
 
 	query := `
-        UPDATE Rooms 
+        UPDATE rooms 
         SET cost = $3 
         WHERE hotel_name = $1 AND number = $2`
 

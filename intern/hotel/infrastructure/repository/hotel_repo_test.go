@@ -33,7 +33,7 @@ func TestAddNewHotel(t *testing.T) {
 		repo, db, mock := setup(t)
 		defer db.Close()
 
-		mock.ExpectExec(`INSERT INTO Hotels`).
+		mock.ExpectExec(`INSERT INTO hotels`).
 			WithArgs(hotel.Name, hotel.Email).
 			WillReturnResult(sqlmock.NewResult(1, 1))
 
@@ -46,7 +46,7 @@ func TestAddNewHotel(t *testing.T) {
 		repo, db, mock := setup(t)
 		defer db.Close()
 
-		mock.ExpectExec(`INSERT INTO Hotels`).
+		mock.ExpectExec(`INSERT INTO hotels`).
 			WithArgs(hotel.Name, hotel.Email).
 			WillReturnError(&pq.Error{Code: "23505"})
 
@@ -64,7 +64,7 @@ func TestGetByName(t *testing.T) {
 		rows := sqlmock.NewRows([]string{"name", "email"}).
 			AddRow("Hotel", "hotel@mail.com")
 
-		mock.ExpectQuery(`SELECT name, email FROM Hotels WHERE name = \$1`).
+		mock.ExpectQuery(`SELECT name, email FROM hotels WHERE name = \$1`).
 			WithArgs("Hotel").
 			WillReturnRows(rows)
 
@@ -78,7 +78,7 @@ func TestGetByName(t *testing.T) {
 		repo, db, mock := setup(t)
 		defer db.Close()
 
-		mock.ExpectQuery(`SELECT name, email FROM Hotels WHERE name = \$1`).
+		mock.ExpectQuery(`SELECT name, email FROM hotels WHERE name = \$1`).
 			WithArgs("Missing").
 			WillReturnError(sql.ErrNoRows)
 
@@ -96,7 +96,7 @@ func TestGetByEmail(t *testing.T) {
 		rows := sqlmock.NewRows([]string{"email"}).
 			AddRow("a@mail.com")
 
-		mock.ExpectQuery(`SELECT email FROM Hotels WHERE email = \$1`).
+		mock.ExpectQuery(`SELECT email FROM hotels WHERE email = \$1`).
 			WithArgs("a@mail.com").
 			WillReturnRows(rows)
 
@@ -110,7 +110,7 @@ func TestGetByEmail(t *testing.T) {
 		repo, db, mock := setup(t)
 		defer db.Close()
 
-		mock.ExpectQuery(`SELECT email FROM Hotels WHERE email = \$1`).
+		mock.ExpectQuery(`SELECT email FROM hotels WHERE email = \$1`).
 			WithArgs("missing@mail.com").
 			WillReturnError(sql.ErrNoRows)
 
@@ -128,7 +128,7 @@ func TestGetAll(t *testing.T) {
 		AddRow("A", "a@mail.com").
 		AddRow("B", "b@mail.com")
 
-	mock.ExpectQuery(`SELECT name, email FROM Hotels`).
+	mock.ExpectQuery(`SELECT name, email FROM hotels`).
 		WillReturnRows(rows)
 
 	list, err := repo.GetAll()
@@ -144,7 +144,7 @@ func TestExistsByName(t *testing.T) {
 
 		rows := sqlmock.NewRows([]string{"exists"}).AddRow(true)
 
-		mock.ExpectQuery(`SELECT EXISTS\(SELECT 1 FROM Hotels WHERE name = \$1\)`).
+		mock.ExpectQuery(`SELECT EXISTS\(SELECT 1 FROM hotels WHERE name = \$1\)`).
 			WithArgs("Hotel").
 			WillReturnRows(rows)
 
@@ -160,7 +160,7 @@ func TestExistsByName(t *testing.T) {
 
 		rows := sqlmock.NewRows([]string{"exists"}).AddRow(false)
 
-		mock.ExpectQuery(`SELECT EXISTS\(SELECT 1 FROM Hotels WHERE name = \$1\)`).
+		mock.ExpectQuery(`SELECT EXISTS\(SELECT 1 FROM hotels WHERE name = \$1\)`).
 			WithArgs("Missing").
 			WillReturnRows(rows)
 
