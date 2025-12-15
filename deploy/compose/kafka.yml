@@ -14,9 +14,9 @@ services:
     restart: always
     environment:
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_LISTENERS=PLAINTEXT://kafka:29092,PLAINTEXT_HOST://0.0.0.0:9092
-      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT
       - KAFKA_BROKER_ID=1
       - KAFKA_JMX_PORT=7071
       - KAFKA_JMX_HOSTNAME=kafka
@@ -51,17 +51,17 @@ services:
       - kafka_network
 
   jmx_exporter:
-    image: bitnami/jmx-exporter:latest
+    build:
+      context: ${PWD}
+      dockerfile: ${PWD}/deploy/jmx/Dockerfile
     restart: always
-    environment:
-      - SERVICE_PORT=5556
-    volumes:
-      - ${PWD}/config/kafka/jmx_config.yml:/etc/jmx-exporter/config.yml
-    command:
-      - "5556"
-      - "/etc/jmx-exporter/config.yml"
     ports:
       - "5556:5556"
+    volumes:
+      - ${PWD}/config/kafka/jmx_config.yml:/etc/jmx-exporter/config.yml:ro
+    environment:
+      JMX_PORT: 5556
+      JMX_CONFIG: /etc/jmx-exporter/config.yml
     depends_on:
       kafka:
         condition: service_healthy

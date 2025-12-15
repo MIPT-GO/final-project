@@ -10,6 +10,7 @@ type Config struct {
 	LogLevel string
 
 	Host string
+	Port string
 
 	KafkaBrokers []string
 	KafkaTopic   string
@@ -48,6 +49,7 @@ func getEnvInt(key string, defaultValue int) int {
 func (config *Config) LoadFromEnv() {
 	config.LogLevel = getEnvString("LOG_LEVEL", "info")
 	config.Host = getEnvString("HOST", "0.0.0.0")
+	config.Port = getEnvString("PORT", "8084")
 
 	brokersList := getEnvString("KAFKA_BROKERS", "kafka:29092")
 	config.KafkaBrokers = make([]string, 0)

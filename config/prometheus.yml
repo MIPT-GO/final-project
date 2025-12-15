@@ -7,6 +7,8 @@ scrape_configs:
       - targets: [ 'localhost:9090' ]
 
   - job_name: 'kafka-jmx'
+    scrape_interval: 5s
+    scrape_timeout: 4s
     static_configs:
       - targets: [ 'jmx_exporter:5556' ]
 
@@ -21,3 +23,7 @@ scrape_configs:
   - job_name: 'booking'
     static_configs:
       - targets: [ 'booking:8081' ]
+
+  - job_name: 'notification'
+    static_configs:
+      - targets: [ 'notification:8084' ]

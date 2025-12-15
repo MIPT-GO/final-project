@@ -6,6 +6,7 @@ import (
 	"final-project/intern/booking/application/service"
 	"final-project/intern/booking/infrastructure/server/handlers"
 	"final-project/pkg/booking/constants"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 	"os"
 	"os/signal"
@@ -24,6 +25,7 @@ func StartServer(port string, repo interfaces.Repository, logger interfaces.Logg
 	mux.HandleFunc("/v1/booking/", h.BookRoomInHotel)
 	mux.HandleFunc("/v1/available/{hotel}/", h.Available)
 	mux.HandleFunc("/webhook/payment/{id}", h.PaymentWebhook)
+	mux.Handle("/metrics", promhttp.Handler())
 	serv := &http.Server{
 		Addr:    port,
 		Handler: mux,

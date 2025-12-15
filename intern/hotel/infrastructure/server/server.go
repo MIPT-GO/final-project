@@ -84,6 +84,8 @@ func setupRoutes(h interfaces.HotelHandler, log *slog.Logger) *mux.Router {
 	router.HandleFunc("/v1/hotel/{hotel}/room/", h.CreateRoom).Methods("POST")
 	logRoute("POST", "/v1/hotel/{hotel}/room/")
 
+	router.Handle("/metrics", promhttp.Handler())
+
 	log.Info(logs.MsgOperationSuccess, logs.KeyEvent, logs.EventRouterSetup)
 	return router
 }
@@ -108,12 +110,4 @@ func (s *HotelServer) Run() error {
 		logs.KeyEvent, logs.EventServerShutdown,
 		slog.String("addr", addr))
 	return nil
-}
-
-func AddMetricsHandler(host string) {
-	http.Handle("/metrics", promhttp.Handler())
-
-	go func() {
-		_ = http.ListenAndServe(host+":9000", nil)
-	}()
 }

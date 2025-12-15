@@ -33,7 +33,6 @@ func main() {
 	cfg := &config.Config{}
 	cfg.LoadFromEnv()
 
-	server.AddMetricsHandler(cfg.Host)
 	serverAddr := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)

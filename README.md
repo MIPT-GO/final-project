@@ -71,9 +71,9 @@ Status meaning:
 - `ok` - payment is successful
 - `timeout` - the waiting time has expired, timeout
 
-# Hotel Service
+## Hotel Service
 
-## Environment 
+### Environment 
 
 - `DB_HOST` — Postgres host (example: `localhost`)
 - `DB_PORT` — Postgres port (example: `5432`)
@@ -88,7 +88,7 @@ Status meaning:
 - `WRITE_TIMEOUT_SEC` — HTTP write timeout in seconds (example: `10`)
 - `IDLE_TIMEOUT_SEC` — HTTP idle timeout in seconds (example: `15`)
 
-## Endpoints
+### Endpoints
 
 - `GET /v1/hotel/all/` — list all hotels.
 - `POST /v1/hotel/` — create a hotel (body contains hotel fields).

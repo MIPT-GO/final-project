@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
-	"strings"
 	"time"
 
 	"final-project/intern/booking/application/interfaces"
@@ -39,14 +37,6 @@ type paymentResponse struct {
 func (p *PaymentAdapter) InitiatePayment(amount string, webhook string, message string, extra map[string]string) (string, error) {
 	endpoint := p.BaseURL + constants.PaymentInitiateEndpoint
 	fullWebhook := webhook
-	if extra != nil {
-		email := extra["email"]
-		hotel := extra["hotel"]
-		number := extra["number"]
-		start := extra["start"]
-		end := extra["end"]
-		fullWebhook = strings.TrimRight(webhook, "/") + "/" + url.PathEscape(email) + "/" + url.PathEscape(hotel) + "/" + url.PathEscape(number) + "/" + url.PathEscape(start) + "/" + url.PathEscape(end) + "/"
-	}
 	reqBody := paymentRequest{Amount: amount, Webhook: fullWebhook, Message: message}
 	b, _ := json.Marshal(reqBody)
 	p.Logger.Debug(constants.EventHotelRequest, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventHotelRequest, constants.KeyURL, endpoint)

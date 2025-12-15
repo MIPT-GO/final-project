@@ -49,11 +49,11 @@ const (
 
 // Hotel service endpoints (format strings)
 const (
-	HotelRoomCheckEndpoint      = "/hotel/%s/room/%d/"
-	HotelAvailableRoomsEndpoint = "/hotel/%s/rooms/"
-	HotelRoomPriceEndpoint      = "/hotel/%s/room/%d/"
-	HotelOwnerEmailEndpoint     = "/hotel/%s/"
-	PaymentInitiateEndpoint     = "/payments/initiate/"
+	HotelRoomCheckEndpoint      = "/v1/hotel/%s/room/%d"
+	HotelAvailableRoomsEndpoint = "/v1/hotel/%s/rooms/"
+	HotelRoomPriceEndpoint      = "/v1/hotel/%s/room/%d"
+	HotelOwnerEmailEndpoint     = "/v1/hotel/%s"
+	PaymentInitiateEndpoint     = "/v1/payment/link"
 )
 
 // Payment service env keys and defaults

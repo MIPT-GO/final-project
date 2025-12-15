@@ -15,7 +15,7 @@ func AddMetricsHandler(cfg *config.Config) *http.Server {
 	mux.Handle("/metrics", promhttp.Handler())
 
 	server := &http.Server{
-		Addr:    cfg.Host + ":9000",
+		Addr:    cfg.Host + ":" + cfg.Port,
 		Handler: mux,
 	}
 

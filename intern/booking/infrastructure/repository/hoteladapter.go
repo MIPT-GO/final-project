@@ -73,17 +73,20 @@ func (h *HotelAdapter) GetAllRoomsInHotel(hotel string) ([]uint64, error) {
 		return nil, fmt.Errorf(constants.MsgHotelServiceStatusFmt, resp.StatusCode)
 	}
 	//узнать формат комнат и нормально дешифровать
-	var rooms []uint64
-	if err := json.NewDecoder(resp.Body).Decode(&rooms); err != nil {
+	type rooms struct {
+		Rooms []uint64 `json:"numbers"`
+	}
+	var rooms1 rooms
+	if err := json.NewDecoder(resp.Body).Decode(&rooms1); err != nil {
 		if h.Logger != nil {
 			h.Logger.Error(constants.EventHotelResponse, err, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventHotelResponse)
 		}
 		return nil, err
 	}
 	if h.Logger != nil {
-		h.Logger.Info(constants.EventHotelResponse, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventHotelResponse, constants.KeyHotelName, hotel, constants.KeyCount, len(rooms))
+		h.Logger.Info(constants.EventHotelResponse, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventHotelResponse, constants.KeyHotelName, hotel, constants.KeyCount, len(rooms1.Rooms))
 	}
-	return rooms, nil
+	return rooms1.Rooms, nil
 }
 
 func (h *HotelAdapter) GetRoomPrice(hotel string, roomNumber uint64) (string, error) {
@@ -110,7 +113,7 @@ func (h *HotelAdapter) GetRoomPrice(hotel string, roomNumber uint64) (string, er
 		return "", fmt.Errorf(constants.MsgHotelServiceStatusFmt, resp.StatusCode)
 	}
 	var pr struct {
-		Price string `json:"cost"`
+		Price float32 `json:"cost"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&pr); err != nil {
 		if h.Logger != nil {
@@ -121,7 +124,7 @@ func (h *HotelAdapter) GetRoomPrice(hotel string, roomNumber uint64) (string, er
 	if h.Logger != nil {
 		h.Logger.Info(constants.EventHotelResponse, constants.KeyService, constants.ServiceBooking, constants.KeyEvent, constants.EventHotelResponse, constants.KeyHotelName, hotel)
 	}
-	return pr.Price, nil
+	return fmt.Sprintf("%.2f", pr.Price), nil
 }
 
 func (h *HotelAdapter) GetOwnerEmail(hotel string) (string, error) {

@@ -3,6 +3,7 @@ package kafka
 import (
 	"context"
 	"encoding/json"
+	"log/slog"
 	"time"
 
 	"final-project/intern/booking/application/interfaces"
@@ -15,6 +16,7 @@ type AsyncProducer struct {
 }
 
 func NewProducer(brokers string, topic string) interfaces.Producer {
+	slog.Error(brokers, topic)
 	w := &kafka.Writer{
 		Addr:         kafka.TCP(brokers),
 		Topic:        topic,
@@ -27,7 +29,9 @@ func NewProducer(brokers string, topic string) interfaces.Producer {
 }
 
 func (p *AsyncProducer) Send(message []byte) {
+	slog.Error("Start to send message to kafka")
 	go func(msg []byte) {
+		slog.Error("-_-")
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		_ = p.writer.WriteMessages(ctx, kafka.Message{Value: msg})

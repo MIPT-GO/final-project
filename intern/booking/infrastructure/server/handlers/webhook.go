@@ -66,6 +66,7 @@ func (h *handler) PaymentWebhook(w http.ResponseWriter, r *http.Request) {
 		}
 		b, _ := json.Marshal(e)
 		h.service.Producer.Send(b)
+		logger.Debug("Start to send message to kafka")
 	}
 	w.WriteHeader(http.StatusOK)
 }
