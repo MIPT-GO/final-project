@@ -14,7 +14,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func StartServer(context context.Context, usecase *application.PaymentsUseCase, config *config.Config) {
+func CreateServer(context context.Context, usecase *application.PaymentsUseCase, config *config.Config) *http.Server {
 	router := mux.NewRouter()
 
 	handlers := HandlersManager{
@@ -29,6 +29,12 @@ func StartServer(context context.Context, usecase *application.PaymentsUseCase, 
 		Handler: router,
 		Addr:    config.Host + ":" + strconv.Itoa(config.Port),
 	}
+
+	return &server
+}
+
+func StartServer(context context.Context, usecase *application.PaymentsUseCase, config *config.Config) {
+	server := CreateServer(context, usecase, config)
 
 	ctx, cancel := signal.NotifyContext(context, os.Interrupt)
 	defer cancel()
