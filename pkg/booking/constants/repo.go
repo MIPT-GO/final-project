@@ -49,9 +49,9 @@ const (
 
 // Hotel service endpoints (format strings)
 const (
-	HotelRoomCheckEndpoint      = "/hotel/%s/rooms/%d"
+	HotelRoomCheckEndpoint      = "/hotel/%s/room/%d"
 	HotelAvailableRoomsEndpoint = "/hotel/%s/rooms/"
-	HotelRoomPriceEndpoint      = "/hotel/%s/rooms/%d"
+	HotelRoomPriceEndpoint      = "/hotel/%s/room/%d"
 	HotelOwnerEmailEndpoint     = "/hotel/%s/"
 	PaymentInitiateEndpoint     = "/payments/initiate"
 )
