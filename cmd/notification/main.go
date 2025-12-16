@@ -64,13 +64,17 @@ func main() {
 	metricsServer := metrics.AddMetricsHandler(cfg)
 	defer metrics.Shutdown(context.Background(), metricsServer)
 
-	sender := email.NewSMTPSender(cfg)
+	var sender application.EmailSender
+	if cfg.SMTPUsername == "" || cfg.SMTPPassword == "" {
+		slog.Warn("smtp is not configured, using log email sender")
+		sender = email.NewLogEmailSender()
+	} else {
+		sender = email.NewSMTPSender(cfg)
+	}
 	service := application.NewNotificationService(sender)
 	handler := handlers.NewEmailNotificationHandler(service)
 
-	server := kafka.NewServer(cfg, map[string]kafka.MessageHandler{
-		"send_notification": handler.Handle,
-	})
+	server := kafka.NewServer(cfg, handler.Handle)
 
 	if err := server.Serve(ctx); err != nil {
 		slog.Error("notification service stopped with error", "error", err.Error())
