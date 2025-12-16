@@ -15,7 +15,7 @@ import (
 type MessageHandler func(value []byte) error
 
 type Server struct {
-	reader  *kafka.Reader
+	reader  reader
 	handler MessageHandler
 }
 
@@ -107,4 +107,3 @@ func (kafkaServer *Server) Serve(ctx context.Context) error {
 		}
 	}
 }
-

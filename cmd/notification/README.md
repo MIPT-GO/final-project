@@ -2,7 +2,7 @@
 
 ## Environment
 
-- `HOST` — host for metrics bind (metrics: `http://{HOST}:9000/metrics`)
+- `HOST` — host for metrics bind (metrics: `http://{HOST}:8084/metrics`)
 - `LOG_LEVEL` — `debug|info|warning|error`
 - `KAFKA_BROKERS` — brokers list (example: `localhost:9092`)
 - `KAFKA_TOPIC` — default: `notifications`
