@@ -1,0 +1,44 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+LICENSE
+CHANGELOG.md
+docs/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.circleci/
+
+# Tests
+*_test.go
+tests/
+test/
+coverage.out
+
+# Development
+.env
+.env.local
+Makefile
+docker-compose*.yml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build
+bin/
+dist/
+*.o
+*.so
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,154 @@
+services:
+  hotel_db:
+    image: postgres:alpine
+    restart: always
+    env_file:
+      - ${PWD}/config/db/hotel_db.env
+    volumes:
+      - hotel_data:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
+      interval: 5s
+      timeout: 30s
+      retries: 5
+      start_period: 5s
+    ports:
+      - "5432:5432"
+    networks:
+      - services_network
+
+  booking_db:
+    image: postgres:alpine
+    restart: always
+    env_file:
+      - ${PWD}/config/db/booking_db.env
+    volumes:
+      - booking_data:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
+      interval: 5s
+      timeout: 30s
+      retries: 5
+      start_period: 5s
+    ports:
+      - "5433:5432"
+    networks:
+      - services_network
+
+  redis:
+    image: redis:alpine
+    restart: always
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - services_network
+
+  payment_system:
+    image: "payment_system:dev"
+    restart: always
+    build:
+      target: runtime
+      context: ${PWD}
+      dockerfile: ${PWD}/deploy/Dockerfile
+      args:
+        APP: payment-system
+      cache_from:
+        - "payment_system:dev"
+        - "payment_system:latest"
+    volumes:
+      - ${PWD}/intern/payment-system/infrastructure/templates:/app/templates
+    env_file:
+      - ${PWD}/config/services/payment-system.env
+    environment:
+      - TEMPLATE_DIR=/app/templates
+      - RUN_MIGRATIONS=false
+    ports:
+      - "8082:8082"
+    networks:
+      - services_network
+
+  booking:
+    image: "booking:dev"
+    restart: always
+    build:
+      target: runtime
+      context: ${PWD}
+      dockerfile: ${PWD}/deploy/Dockerfile
+      args:
+        APP: booking
+      cache_from:
+        - "booking:dev"
+        - "booking:latest"
+    env_file:
+      - ${PWD}/config/services/booking.env
+    ports:
+      - "8081:8081"
+    volumes:
+      - ${PWD}/migrations/booking:/app/migrations
+    depends_on:
+      booking_db:
+        condition: service_healthy
+    networks:
+      - services_network
+      - kafka_network
+
+  hotel:
+    image: "hotel:dev"
+    restart: always
+    build:
+      target: runtime
+      context: ${PWD}
+      dockerfile: ${PWD}/deploy/Dockerfile
+      args:
+        APP: hotel
+      cache_from:
+        - "hotel:dev"
+        - "hotel:latest"
+    env_file:
+      - ${PWD}/config/services/hotel.env
+    ports:
+      - "8083:8083"
+    volumes:
+      - ${PWD}/migrations/hotel:/app/migrations
+    depends_on:
+      hotel_db:
+        condition: service_healthy
+    networks:
+      - services_network
+      - kafka_network
+
+  notification:
+    image: "notification:dev"
+    restart: always
+    build:
+      target: runtime
+      context: ${PWD}
+      dockerfile: ${PWD}/deploy/Dockerfile
+      args:
+        APP: notification
+      cache_from:
+        - "notification:dev"
+        - "notification:latest"
+    env_file:
+      - ${PWD}/config/services/notification.env
+    environment:
+      - RUN_MIGRATIONS=false
+    ports:
+      - "8084:8084"
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - services_network
+      - kafka_network
+
+volumes:
+  hotel_data:
+  booking_data:
+  redis_data:
+
+networks:
+  services_network:
+    driver: bridge
