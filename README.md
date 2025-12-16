@@ -100,3 +100,34 @@ Status meaning:
 
 Подробнее: [Hotel Service Readme](../hotel/README.md)
 
+## Booking Service
+
+### Environment 
+
+- `DB_HOST` — Postgres host (example: `localhost`)
+- `DB_PORT` — Postgres port (example: `5432`)
+- `DB_USER` — Postgres user (example: `postgres`)
+- `DB_PASSWORD` — Postgres password (example: `secret`)
+- `DB_DATABASE` — Postgres database name (example: `hotel_db`)
+
+- `HOTEL_SERVICE_HOST` — Hotel service base URL (include scheme, e.g. `http://localhost`)
+- `HOTEL_SERVICE_PORT` — Hotel service port (example: `8081`)
+- `HOTEL_SERVICE_TIMEOUT` — HTTP timeout (example: `5s`)
+
+- `PAYMENT_SERVICE_HOST` — Payment service base URL (include scheme, e.g. `http://localhost`)
+- `PAYMENT_SERVICE_PORT` — Payment service port (example: `8081`)
+- `PAYMENT_SERVICE_TIMEOUT` — HTTP timeout for payment service (example: `5s`)
+
+- `SERVER_HOST` — Service host (example: `0.0.0.0`)
+- `SERVER_PORT` — Service port (example: `8080`)
+
+- `KAFKA_HOST` — Kafka base URL (example: `localhost:9092`)
+- `KAFKA_TOPIC` — Topic name (example: `bookings`)
+
+### Endpoints
+
+- `GET /v1/booking/email/{email}/` — list all bookings on this email.
+- `GET /v1/booking/hotel/{hotel}/` — list all booking on this hotel.
+- `POST /v1/booking/` — Add new booking.
+- `GET /v1/available/{hotel}/` — list all avaliable now rooms in hotel.
+
