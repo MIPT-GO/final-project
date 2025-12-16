@@ -25,10 +25,7 @@ go run ./cmd/notification --env path/to/file.env --level info
 
 Topic: `notifications`
 
-- key: `send_notification`
-- header: `format=json`
-
-Value:
+Value (JSON):
 
 ```json
 {

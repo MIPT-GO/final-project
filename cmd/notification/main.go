@@ -68,9 +68,7 @@ func main() {
 	service := application.NewNotificationService(sender)
 	handler := handlers.NewEmailNotificationHandler(service)
 
-	server := kafka.NewServer(cfg, map[string]kafka.MessageHandler{
-		"send_notification": handler.Handle,
-	})
+	server := kafka.NewServer(cfg, handler.Handle)
 
 	if err := server.Serve(ctx); err != nil {
 		slog.Error("notification service stopped with error", "error", err.Error())

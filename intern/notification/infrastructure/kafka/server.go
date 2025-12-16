@@ -2,7 +2,6 @@ package kafka
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"runtime"
@@ -16,11 +15,11 @@ import (
 type MessageHandler func(value []byte) error
 
 type Server struct {
-	reader   *kafka.Reader
-	handlers map[string]MessageHandler
+	reader  *kafka.Reader
+	handler MessageHandler
 }
 
-func NewServer(cfg *config.Config, handlers map[string]MessageHandler) *Server {
+func NewServer(cfg *config.Config, handler MessageHandler) *Server {
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:  cfg.KafkaBrokers,
 		Topic:    cfg.KafkaTopic,
@@ -30,8 +29,8 @@ func NewServer(cfg *config.Config, handlers map[string]MessageHandler) *Server {
 	})
 
 	return &Server{
-		reader:   reader,
-		handlers: handlers,
+		reader:  reader,
+		handler: handler,
 	}
 }
 
@@ -56,7 +55,7 @@ func (kafkaServer *Server) Serve(ctx context.Context) error {
 		defer commitWaitGroup.Done()
 		for message := range commitQueue {
 			if err := kafkaServer.reader.CommitMessages(ctx, message); err != nil {
-				slog.Error("failed to commit message", "key", string(message.Key), "error", err.Error())
+				slog.Error("failed to commit message", "error", err.Error())
 			}
 		}
 	}()
@@ -67,8 +66,8 @@ func (kafkaServer *Server) Serve(ctx context.Context) error {
 			defer workersWaitGroup.Done()
 
 			for message := range workQueue {
-				if err := kafkaServer.proceedMessage(message.Key, message.Value, message.Headers); err != nil {
-					slog.Error("handler error", "key", string(message.Key), "error", err.Error())
+				if err := kafkaServer.handler(message.Value); err != nil {
+					slog.Error("handler error", "error", err.Error())
 					continue
 				}
 
@@ -109,26 +108,3 @@ func (kafkaServer *Server) Serve(ctx context.Context) error {
 	}
 }
 
-func getFormatFromHeaders(headers []kafka.Header) string {
-	for _, header := range headers {
-		if header.Key == "format" {
-			return string(header.Value)
-		}
-	}
-
-	return ""
-}
-
-func (kafkaServer *Server) proceedMessage(key []byte, value []byte, headers []kafka.Header) error {
-	if getFormatFromHeaders(headers) != "json" {
-		return errors.New("invalid format")
-	}
-
-	handler, exists := kafkaServer.handlers[string(key)]
-	if !exists {
-		slog.Warn("no handler for message key", "key", string(key))
-		return nil
-	}
-
-	return handler(value)
-}
