@@ -40,7 +40,7 @@ services:
   init-topics:
     image: confluentinc/cp-kafka:7.7.0
     environment:
-      BOOTSTRAP_SERVER: kafka:29092
+      BOOTSTRAP_SERVER: kafka:9092
     volumes:
       - ${PWD}/scripts/init-topics.sh:/init-topics.sh:ro
     entrypoint: ["/bin/bash", "/init-topics.sh"]

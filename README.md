@@ -131,3 +131,9 @@ Status meaning:
 - `POST /v1/booking/` — Add new booking.
 - `GET /v1/available/{hotel}/` — list all avaliable now rooms in hotel.
 
+## Миграции
+Миграции применяются автоматически при старте контейнеров. Если нужна потребность выполнить миграции вне работы с docker compose, то нужна утилита goose.
+Заранее нужно определить DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_DATABASE. Вот команда для миграций: 
+```bash
+goose -dir ./migrations/ "postgres" "postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}?sslmode=disable" up
+```
