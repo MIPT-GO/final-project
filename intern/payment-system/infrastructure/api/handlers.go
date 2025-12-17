@@ -3,7 +3,7 @@ package api
 import (
 	"encoding/json"
 	"final-project/intern/payment-system/application"
-	"final-project/pkg/payment-system/constants"
+	"final-project/intern/payment-system/constants"
 	"log/slog"
 	"net/http"
 
