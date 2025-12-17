@@ -5,10 +5,10 @@ import (
 	"errors"
 	"log/slog"
 
+	"final-project/intern/hotel/constants/custom_errors"
+	"final-project/intern/hotel/constants/logs"
 	"final-project/intern/hotel/domain/entity"
 	"final-project/intern/hotel/domain/interfaces"
-	"final-project/pkg/custom_errors"
-	"final-project/pkg/logs"
 
 	"github.com/lib/pq"
 )

@@ -6,8 +6,8 @@ import (
 	"errors"
 	"final-project/intern/payment-system/application"
 	"final-project/intern/payment-system/config"
+	"final-project/intern/payment-system/constants"
 	"final-project/intern/payment-system/domain"
-	"final-project/pkg/payment-system/constants"
 	"io"
 	"testing"
 

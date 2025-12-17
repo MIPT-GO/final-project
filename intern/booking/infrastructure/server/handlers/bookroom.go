@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"time"
 
+	"final-project/intern/booking/constants"
 	"final-project/intern/booking/domain/models/reservation"
 	"final-project/intern/booking/infrastructure/server/dto"
-	"final-project/pkg/booking/constants"
 )
 
 func (handl *handler) BookRoomInHotel(w http.ResponseWriter, r *http.Request) {
