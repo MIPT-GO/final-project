@@ -11,10 +11,12 @@ import (
 
 	"final-project/intern/hotel/application/service/hotel_service"
 	"final-project/intern/hotel/application/service/room_service"
+	"final-project/intern/hotel/constants/logs"
 	"final-project/intern/hotel/domain/interfaces"
 	"final-project/intern/hotel/infrastructure/repository"
 	"final-project/intern/hotel/infrastructure/server/handlers"
-	"final-project/pkg/logs"
+
+	"final-project/pkg/metrics"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -55,7 +57,8 @@ func setupRoutes(h interfaces.HotelHandler, log *slog.Logger) *mux.Router {
 	log.Info(logs.MsgStartOperation, logs.KeyEvent, logs.EventRouterSetup)
 
 	router := mux.NewRouter()
-
+	collector := metrics.HttpMetricsCollector{}
+	collector.New()
 	logRoute := func(method, path string) {
 		log.Debug(logs.MsgRouteRegistered,
 			logs.KeyEvent, logs.EventRouteRegister,
@@ -85,6 +88,8 @@ func setupRoutes(h interfaces.HotelHandler, log *slog.Logger) *mux.Router {
 	logRoute("POST", "/v1/hotel/{hotel}/room/")
 
 	router.Handle("/metrics", promhttp.Handler())
+
+	router.Use(collector.Middleware)
 
 	log.Info(logs.MsgOperationSuccess, logs.KeyEvent, logs.EventRouterSetup)
 	return router

@@ -12,9 +12,9 @@ import (
 	"syscall"
 	"time"
 
+	"final-project/intern/hotel/config"
+	"final-project/intern/hotel/constants/logs"
 	"final-project/intern/hotel/infrastructure/server"
-	config "final-project/pkg/hotel"
-	"final-project/pkg/logs"
 
 	_ "github.com/lib/pq"
 

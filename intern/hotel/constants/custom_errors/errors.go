@@ -10,11 +10,9 @@ var ErrDatabaseFailure = errors.New("database failure")
 
 var ErrExternalServiceFailure = errors.New("external service failure")
 
-// Ошибки, связанные с сущностями
 var ErrEntityNotFound = errors.New("entity not found")
 var ErrEntityAlreadyExists = errors.New("entity already exists")
 
-// Ошибки, связанные с инфраструктурой
 var ErrRepoQueryFailed = errors.New("repository query failed")
 var ErrRepoScanFailed = errors.New("repository scan failed")
 
