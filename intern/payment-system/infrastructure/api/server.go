@@ -4,7 +4,8 @@ import (
 	"context"
 	"final-project/intern/payment-system/application"
 	"final-project/intern/payment-system/config"
-	"final-project/pkg/payment-system/constants"
+	"final-project/intern/payment-system/constants"
+	"final-project/pkg/metrics"
 	"log/slog"
 	"net/http"
 	"os"
@@ -22,10 +23,15 @@ func CreateServer(context context.Context, usecase *application.PaymentsUseCase,
 		UseCase: usecase,
 	}
 
+	collector := metrics.HttpMetricsCollector{}
+	collector.New()
+
 	router.HandleFunc(config.RouterPrefix+"/link", handlers.PaymentRequestHandler).Methods("POST")
 	router.HandleFunc(config.RouterPrefix+"/confirm/{key}", handlers.ConfirmPaymentHandler).Methods("POST")
 	router.HandleFunc(config.RouterPrefix+"/page/{key}", handlers.RenderPaymentPageHandler).Methods("GET")
 	router.Handle("/metrics", promhttp.Handler())
+
+	router.Use(collector.Middleware)
 
 	server := http.Server{
 		Handler: router,
