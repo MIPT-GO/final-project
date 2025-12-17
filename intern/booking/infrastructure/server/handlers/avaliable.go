@@ -3,8 +3,8 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"final-project/intern/booking/constants"
 	"final-project/intern/booking/infrastructure/server/dto"
-	"final-project/pkg/booking/constants"
 	"net/http"
 )
 

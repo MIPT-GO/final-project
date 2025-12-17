@@ -2,7 +2,7 @@
 package logger
 
 import (
-	"final-project/pkg/booking/constants"
+	"final-project/intern/booking/constants"
 	"log/slog"
 	"os"
 )

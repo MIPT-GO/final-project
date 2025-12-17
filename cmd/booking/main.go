@@ -8,15 +8,16 @@ import (
 	"os"
 
 	"final-project/intern/booking/application/interfaces"
+	"final-project/intern/booking/constants"
 	"final-project/intern/booking/infrastructure/env"
 	"final-project/intern/booking/infrastructure/kafka"
 	"final-project/intern/booking/infrastructure/logger"
 	"final-project/intern/booking/infrastructure/repository"
 	"final-project/intern/booking/infrastructure/server"
-	"final-project/pkg/booking/constants"
+
+	"log/slog"
 
 	_ "github.com/lib/pq"
-	"log/slog"
 )
 
 func parseLogLevel(lvl string) slog.Level {
