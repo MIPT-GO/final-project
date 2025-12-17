@@ -2,9 +2,9 @@ package hotel_service
 
 import (
 	"errors"
+	"final-project/intern/hotel/constants/custom_errors"
+	"final-project/intern/hotel/constants/logs"
 	"final-project/intern/hotel/domain/entity"
-	"final-project/pkg/custom_errors"
-	"final-project/pkg/logs"
 )
 
 func (s *HotelServiceImpl) GetAll() ([]string, error) {

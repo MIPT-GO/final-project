@@ -9,9 +9,9 @@ import (
 	"github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 
+	"final-project/intern/hotel/constants/custom_errors"
 	"final-project/intern/hotel/domain/entity"
 	"final-project/intern/hotel/domain/interfaces"
-	"final-project/pkg/custom_errors"
 )
 
 var hotelTestLoger = slog.New(slog.NewTextHandler(nil, nil))
