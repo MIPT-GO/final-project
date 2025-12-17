@@ -2,8 +2,8 @@ package repository
 
 import (
 	"final-project/intern/booking/application/interfaces"
+	"final-project/intern/booking/constants"
 	"final-project/intern/booking/domain/models/reservation"
-	"final-project/pkg/booking/constants"
 	"time"
 )
 

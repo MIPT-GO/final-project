@@ -4,13 +4,16 @@ import (
 	"context"
 	"final-project/intern/booking/application/interfaces"
 	"final-project/intern/booking/application/service"
+	"final-project/intern/booking/constants"
 	"final-project/intern/booking/infrastructure/server/handlers"
-	"final-project/pkg/booking/constants"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"final-project/pkg/metrics"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func StartServer(port string, repo interfaces.Repository, logger interfaces.Logger, webhook string, producer interfaces.Producer) {
@@ -19,6 +22,9 @@ func StartServer(port string, repo interfaces.Repository, logger interfaces.Logg
 
 	s := service.NewReservationService(repo, webhook, logger, producer)
 	h := handlers.NewHandler(s)
+	collector := metrics.HttpMetricsCollector{}
+	collector.New()
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/v1/booking/email/{email}/", h.GetByEmail)
 	mux.HandleFunc("/v1/booking/hotel/{hotel}/", h.GetByHotel)
@@ -26,9 +32,11 @@ func StartServer(port string, repo interfaces.Repository, logger interfaces.Logg
 	mux.HandleFunc("/v1/available/{hotel}/", h.Available)
 	mux.HandleFunc("/webhook/payment/{id}", h.PaymentWebhook)
 	mux.Handle("/metrics", promhttp.Handler())
+
+	router := collector.Middleware(mux)
 	serv := &http.Server{
 		Addr:    port,
-		Handler: mux,
+		Handler: router,
 	}
 
 	go func() {

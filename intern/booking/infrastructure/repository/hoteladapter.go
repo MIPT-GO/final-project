@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"final-project/intern/booking/application/interfaces"
-	"final-project/pkg/booking/constants"
+	"final-project/intern/booking/constants"
 )
 
 type HotelAdapter struct {
