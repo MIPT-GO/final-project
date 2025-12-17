@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
+	"final-project/intern/booking/constants"
 	"final-project/intern/booking/infrastructure/server/dto"
-	"final-project/pkg/booking/constants"
 	"net/http"
 )
 

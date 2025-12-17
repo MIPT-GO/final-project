@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"final-project/pkg/booking/constants"
+	"final-project/intern/booking/constants"
 )
 
 type paymentWebhookPayload struct {
