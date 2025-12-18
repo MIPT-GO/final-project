@@ -2,7 +2,7 @@
 -- +goose statementbegin
 CREATE TABLE IF NOT EXISTS hotels (
     name TEXT PRIMARY KEY,
-    email TEXT UNIQUE NOT NULL
+    email TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS rooms (
